@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  color: #243038;
+  background-color: #f8f5ee;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f8f5ee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@keyframes heroDriftZoom {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate3d(-10px, -6px, 0);
+  }
+  100% {
+    transform: scale(1.1) translate3d(10px, 6px, 0);
+  }
+}
+
+@keyframes heroGlowFloat {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(36px, 18px, 0);
+    opacity: 0.65;
+  }
+  100% {
+    transform: translate3d(70px, 8px, 0);
+    opacity: 0.3;
+  }
+}
+
+.hero-image-motion {
+  transform-origin: center;
+  animation: heroDriftZoom 18s ease-in-out infinite alternate;
+}
+
+.hero-overlay-motion {
+  animation: heroGlowFloat 12s ease-in-out infinite alternate;
+}
+
+@keyframes enquiryGlowPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(15, 74, 82, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(15, 74, 82, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 74, 82, 0);
+  }
+}
+
+.enquiry-glow {
+  animation: enquiryGlowPulse 2.2s ease-out infinite;
+}
