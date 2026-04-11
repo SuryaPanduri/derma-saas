@@ -5,6 +5,8 @@ import type { ServiceDTO } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { formatDateLabel, toISODate } from '@/utils/dateUtils';
+import { formatMoney } from '@/utils/moneyUtils';
+import { Clock, Calendar, X, Info } from 'lucide-react';
 
 interface BookingModalProps {
   service: ServiceDTO | null;
@@ -41,15 +43,10 @@ export const BookingModal = ({ service, clinicId, onClose, onBookingSuccess, onB
 
   const canSubmit = useMemo(() => Boolean(service && user && dateISO && timeSlot), [service, user, dateISO, timeSlot]);
 
-  if (!service) {
-    return null;
-  }
+  if (!service) return null;
 
   const handleSubmit = async () => {
-    if (!user || !canSubmit) {
-      return;
-    }
-
+    if (!user || !canSubmit) return;
     try {
       setErrorMessage('');
       await mutateAsync({
@@ -74,39 +71,60 @@ export const BookingModal = ({ service, clinicId, onClose, onBookingSuccess, onB
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-3xl border border-white/40 bg-white/45 p-4 shadow-glass backdrop-blur-xl sm:p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-bold text-slate-800">Book {service.name}</h3>
-          <p className="text-sm text-slate-700">Choose a date and session for your dermatology visit.</p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg rounded-xl border border-[#E8E2DC] bg-white shadow-xl animate-in zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#E8E2DC] px-6 py-4">
+          <div>
+            <h3 className="font-['Playfair_Display'] text-lg font-bold text-[#2C2420]">{service.name}</h3>
+            <div className="mt-1 flex items-center gap-4 text-[12px] text-[#B5A99A]">
+              <span className="flex items-center gap-1"><Clock size={12} /> {service.durationMinutes} min</span>
+              <span>{formatMoney(service.priceCents)}</span>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-[#B5A99A] hover:text-[#1A1A1A] transition-colors rounded-lg hover:bg-[#F5F0EB]">
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="space-y-3">
+        {/* Form */}
+        <div className="p-6 space-y-5">
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Date</label>
-            <Input type="date" value={dateISO} min={toISODate(new Date())} onChange={(e) => setDateISO(e.target.value)} />
-            <p className="mt-1 text-xs text-slate-600">{formatDateLabel(dateISO)}</p>
+            <label className="block text-[12px] font-medium text-[#8A6F5F] mb-1.5">Date</label>
+            <div className="relative">
+              <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B5A99A]" />
+              <Input
+                type="date"
+                value={dateISO}
+                min={toISODate(new Date())}
+                onChange={(e) => setDateISO(e.target.value)}
+                className="h-10 pl-10 rounded-lg border-[#E8E2DC] bg-[#FAFAF8] text-sm focus:bg-white focus:border-[#8A6F5F]"
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-[#B5A99A]">{formatDateLabel(dateISO)}</p>
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Time Slot</label>
+            <label className="block text-[12px] font-medium text-[#8A6F5F] mb-2">Time</label>
             {slotsQuery.isLoading ? (
-              <p className="text-sm text-slate-600">Loading available slots...</p>
+              <div className="flex gap-2">
+                {[1,2,3].map(i => <div key={i} className="h-9 w-20 animate-pulse rounded-lg bg-[#F5F0EB]" />)}
+              </div>
             ) : !slotsQuery.data.length ? (
-              <p className="text-sm text-rose-700">No slots configured for this date.</p>
+              <p className="flex items-center gap-2 text-[13px] text-red-600"><Info size={14} /> No slots for this date.</p>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <div className="flex flex-wrap gap-2">
                 {slotsQuery.data.map((slot) => (
                   <button
                     key={slot.timeSlot}
                     onClick={() => !slot.isBooked && setTimeSlot(slot.timeSlot)}
                     disabled={slot.isBooked}
-                    className={`rounded-lg border px-2 py-1.5 text-sm font-medium transition ${
+                    className={`h-9 rounded-lg px-4 text-[13px] font-medium transition-colors ${
                       timeSlot === slot.timeSlot
-                        ? 'border-teal-600 bg-teal-600 text-white'
+                        ? 'bg-[#8A6F5F] text-white'
                         : slot.isBooked
-                          ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                          : 'border-slate-300 bg-white/80 text-slate-700'
+                          ? 'bg-[#F5F0EB] text-[#D4C8BC] cursor-not-allowed'
+                          : 'border border-[#E8E2DC] bg-white text-[#1A1A1A] hover:border-[#8A6F5F]'
                     }`}
                   >
                     {slot.timeSlot}
@@ -117,23 +135,32 @@ export const BookingModal = ({ service, clinicId, onClose, onBookingSuccess, onB
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Notes</label>
+            <label className="block text-[12px] font-medium text-[#8A6F5F] mb-1.5">Notes (optional)</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="min-h-24 w-full rounded-xl border border-slate-200 bg-white/80 p-3 text-sm outline-none ring-teal-400 focus:ring-2"
-              placeholder="Any symptoms or concerns"
+              className="min-h-[80px] w-full rounded-lg border border-[#E8E2DC] bg-[#FAFAF8] p-3 text-sm outline-none focus:bg-white focus:border-[#8A6F5F] transition-colors placeholder:text-[#D4C8BC]"
+              placeholder="Any concerns or symptoms..."
             />
           </div>
+
+          {errorMessage && (
+            <p className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-100 p-3 text-[13px] text-red-600">
+              <Info size={14} /> {errorMessage}
+            </p>
+          )}
         </div>
 
-        {errorMessage ? <p className="mt-3 text-sm text-rose-700">{errorMessage}</p> : null}
-
-        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
-          <Button variant="ghost" onClick={onClose}>
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-3 border-t border-[#E8E2DC] px-6 py-4">
+          <Button variant="ghost" onClick={onClose} className="text-[13px] text-[#B5A99A] hover:text-[#1A1A1A]">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit || isLoading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit || isLoading}
+            className="h-10 rounded-lg bg-[#1A1A1A] px-6 text-[13px] font-medium text-white hover:bg-[#8A6F5F] transition-colors disabled:opacity-40"
+          >
             {isLoading ? 'Booking...' : 'Confirm Booking'}
           </Button>
         </div>

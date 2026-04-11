@@ -5,20 +5,20 @@ export const ExperienceCard: React.FC = () => {
         <div className="bg-ivory min-h-screen p-8 flex items-center justify-center font-['Manrope']">
             <section className="max-w-3xl w-full relative overflow-hidden rounded-[2rem] border border-[#e6dfd3] bg-[#FAF8F4]/80 backdrop-blur-md shadow-glass p-10 md:p-16 transition-all duration-500 hover:shadow-2xl hover:scale-[1.01]">
                 {/* Subtle Background Accent */}
-                <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-teal-500/5 blur-3xl" />
-                <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-slate/5 blur-3xl" />
+                <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#8A6F5F]/5 blur-3xl" />
+                <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#D4C8BC]/5 blur-3xl" />
 
                 <div className="relative space-y-8">
                     {/* Header Section */}
                     <header className="space-y-3">
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-600 [text-shadow:0_1px_1px_rgba(255,255,255,0.5)]">
+                        <p className="font-['Assistant'] text-xs font-bold uppercase tracking-[0.2em] text-[#8A6F5F] [text-shadow:0_1px_1px_rgba(255,255,255,0.5)]">
                             Full Stack Developer (React & Firebase)
                         </p>
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
-                            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-[#102f34]">
+                            <h2 className="font-['Playfair_Display'] text-4xl md:text-5xl font-semibold tracking-tight text-[#191919]">
                                 Project I
                             </h2>
-                            <p className="text-sm font-medium text-slate/60 mb-1">
+                            <p className="font-['Assistant'] text-sm font-medium text-[#8A6F5F]/60 mb-1">
                                 JAN 2025 – Present
                             </p>
                         </div>
@@ -26,11 +26,11 @@ export const ExperienceCard: React.FC = () => {
 
                     {/* Project Identity */}
                     <div className="space-y-4">
-                        <h3 className="text-2xl md:text-3xl font-medium text-[#18444a] leading-tight">
-                            DERMA SAAS: <span className="text-teal-600">Dermatology Clinic management & patient engagement platform</span>
+                        <h3 className="font-['Playfair_Display'] text-2xl md:text-3xl font-medium text-[#191919] leading-tight">
+                            DERMA SAAS: <span className="text-[#8A6F5F]">Dermatology Clinic management & patient engagement platform</span>
                         </h3>
 
-                        <div className="h-px w-full bg-gradient-to-r from-teal-500/20 via-slate/10 to-transparent" />
+                        <div className="h-px w-full bg-gradient-to-r from-[#8A6F5F]/20 via-[#D4C8BC]/10 to-transparent" />
                     </div>
 
                     {/* Key Contributions List */}
@@ -42,8 +42,8 @@ export const ExperienceCard: React.FC = () => {
                             "Created a premium, responsive dashboard and patient booking flow using React, TypeScript, and TailwindCSS, with real-time state management via Zustand and TanStack Query."
                         ].map((item, idx) => (
                             <li key={idx} className="flex gap-4 group">
-                                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500 group-hover:scale-150 transition-transform duration-300" />
-                                <p className="text-base md:text-lg leading-relaxed text-slate/80 group-hover:text-[#102f34] transition-colors duration-300">
+                                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8A6F5F] group-hover:scale-150 transition-transform duration-300" />
+                                <p className="font-['Assistant'] text-base md:text-lg leading-relaxed text-[#8A6F5F]/80 group-hover:text-[#191919] transition-colors duration-300">
                                     {item}
                                 </p>
                             </li>
@@ -52,11 +52,11 @@ export const ExperienceCard: React.FC = () => {
 
                     {/* Footer Actions */}
                     <footer className="pt-6 flex flex-wrap gap-4">
-                        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-teal-500/20 bg-teal-50/50 text-teal-700 text-sm font-semibold">
-                            <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse" />
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#8A6F5F]/20 bg-[#FAF8F4]/50 text-[#8A6F5F] text-sm font-semibold">
+                            <span className="h-2 w-2 rounded-full bg-[#8A6F5F] animate-pulse" />
                             Deployment: Live Demo
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate/20 bg-slate-50/50 text-slate-700 text-sm font-semibold">
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#D4C8BC]/20 bg-white text-[#8A6F5F] text-sm font-semibold">
                             Code: GitHub
                         </div>
                     </footer>

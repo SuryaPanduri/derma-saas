@@ -91,22 +91,22 @@ export const NotificationsView = () => {
 
   return (
     <div className="space-y-4">
-      <Card className="border-[#d5e4e7] bg-white p-4 sm:p-5">
+      <Card className="border-[#D4C8BC]/30 bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6b7f83]">Updates</p>
-            <h2 className="mt-1 text-2xl font-bold text-[#12353a]">Notifications</h2>
-            <p className="mt-1 text-sm text-[#4f666b]">Order and booking alerts in one place.</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Updates</p>
+            <h2 className="font-['Playfair_Display'] mt-1 text-2xl font-bold text-[#191919]">Notifications</h2>
+            <p className="mt-1 text-sm text-[#8A6F5F]/70">Order and booking alerts in one place.</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#d5e4e7] bg-[#f7f9fa] px-3 py-1.5 text-xs font-semibold text-[#12353a]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#D4C8BC]/40 bg-[#FAF8F4] px-3 py-1.5 text-xs font-semibold text-[#191919]">
               <BellRing size={14} />
               {visibleNotifications.length} total
             </span>
             <button
               onClick={handleClearNotifications}
               disabled={!visibleNotifications.length || isClearing}
-              className="inline-flex items-center gap-1 rounded-full border border-[#d5e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#12353a] transition hover:bg-[#f7f9fa] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-full border border-[#D4C8BC]/40 bg-white px-3 py-1.5 text-xs font-semibold text-[#191919] transition hover:bg-[#FAF8F4] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Trash2 size={13} className={isClearing ? 'animate-pulse' : ''} />
               {isClearing ? 'Clearing...' : 'Clear'}
@@ -114,23 +114,23 @@ export const NotificationsView = () => {
           </div>
         </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#6b7f83]">
+          <div className="rounded-xl border border-[#D4C8BC]/20 bg-[#FAF8F4] p-3">
+            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#8A6F5F]/60">
               <Package size={13} /> Orders
             </p>
-            <p className="mt-1 text-xl font-bold text-[#12353a]">{orderUpdates}</p>
+            <p className="mt-1 text-xl font-bold text-[#191919]">{orderUpdates}</p>
           </div>
-          <div className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#6b7f83]">
+          <div className="rounded-xl border border-[#D4C8BC]/20 bg-[#FAF8F4] p-3">
+            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#8A6F5F]/60">
               <CalendarClock size={13} /> Bookings
             </p>
-            <p className="mt-1 text-xl font-bold text-[#12353a]">{bookingUpdates}</p>
+            <p className="mt-1 text-xl font-bold text-[#191919]">{bookingUpdates}</p>
           </div>
-          <div className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#6b7f83]">
+          <div className="rounded-xl border border-[#D4C8BC]/20 bg-[#FAF8F4] p-3">
+            <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[#8A6F5F]/60">
               <Sparkles size={13} /> Latest
             </p>
-            <p className="mt-1 text-sm font-semibold text-[#12353a]">{notifications.length ? 'Live updates active' : 'No pending updates'}</p>
+            <p className="mt-1 text-sm font-semibold text-[#191919]">{notifications.length ? 'Live updates active' : 'No pending updates'}</p>
           </div>
         </div>
       </Card>
@@ -140,53 +140,53 @@ export const NotificationsView = () => {
       ) : (
         <div className={`space-y-3 transition-all duration-300 ${isClearing ? 'translate-y-1 opacity-0' : 'opacity-100'}`}>
           {paginatedNotifications.map((item) => (
-            <Card key={item.id} className="border-[#d5e4e7] bg-white p-4">
+            <Card key={item.id} className="border-[#D4C8BC]/30 bg-white p-4">
               <div className="flex items-start gap-3">
                 <div
                   className={`mt-0.5 rounded-full p-2 ${
-                    item.type === 'order' ? 'bg-[#e7eef0] text-[#0f4a52]' : 'bg-[#eef2ff] text-[#3b4fb8]'
+                    item.type === 'order' ? 'bg-[#FAF8F4] text-[#8A6F5F]' : 'bg-[#F2EDEA] text-[#5D4A3E]'
                   }`}
                 >
                   {item.type === 'order' ? <Package size={16} /> : <CalendarClock size={16} />}
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold text-[#12353a]">{item.title}</p>
-                    <span className="rounded-full border border-[#d5e4e7] bg-[#f7f9fa] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#4f666b]">
+                    <p className="text-sm font-semibold text-[#191919]">{item.title}</p>
+                    <span className="rounded-full border border-[#D4C8BC]/30 bg-[#FAF8F4] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#8A6F5F]">
                       {item.type}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-[#4f666b]">{item.subtitle}</p>
-                  <p className="mt-1 inline-flex items-center gap-1 text-xs text-[#6b7f83]">
+                  <p className="mt-1 text-sm text-[#8A6F5F]/70">{item.subtitle}</p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-xs text-[#8A6F5F]/60">
                     <Clock3 size={12} />
                     {formatDateLabel(item.createdAt)}
                   </p>
                 </div>
-                <Bell size={14} className="text-[#6b7f83]" />
+                <Bell size={14} className="text-[#8A6F5F]/40" />
               </div>
             </Card>
           ))}
           {totalPages > 1 ? (
-            <Card className="border-[#d5e4e7] bg-white p-3">
+            <Card className="border-[#D4C8BC]/30 bg-white p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs text-[#6b7f83]">
+                <p className="text-xs text-[#8A6F5F]/60">
                   Showing {startIndex + 1}-{Math.min(startIndex + pageSize, visibleNotifications.length)} of {visibleNotifications.length}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPage((current) => Math.max(1, current - 1))}
                     disabled={page === 1}
-                    className="rounded-lg border border-[#d5e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#12353a] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-lg border border-[#D4C8BC]/40 bg-white px-3 py-1.5 text-xs font-semibold text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Prev
                   </button>
-                  <span className="text-xs font-semibold text-[#4f666b]">
+                  <span className="text-xs font-semibold text-[#8A6F5F]">
                     Page {page} / {totalPages}
                   </span>
                   <button
                     onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     disabled={page === totalPages}
-                    className="rounded-lg border border-[#d5e4e7] bg-white px-3 py-1.5 text-xs font-semibold text-[#12353a] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-lg border border-[#D4C8BC]/40 bg-white px-3 py-1.5 text-xs font-semibold text-[#191919] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>

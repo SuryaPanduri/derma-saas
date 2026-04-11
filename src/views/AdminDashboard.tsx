@@ -82,7 +82,7 @@ const statusBadgeClass = (status: string) => {
   if (status === 'cancelled') {
     return 'bg-rose-50 text-rose-700 border-rose-100';
   }
-  return 'bg-teal-50 text-teal-700 border-teal-100';
+  return 'bg-[#F5F0EA] text-[#8A6F5F] border-[#D4C8BC]';
 };
 
 export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSignOut: () => void }) => {
@@ -491,7 +491,7 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
         <Button variant="outline" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1}>
           Prev
         </Button>
-        <span className="text-sm text-[#4f666b]">
+        <span className="text-sm text-[#5D4A3E]/70">
           {page} / {totalPages}
         </span>
         <Button variant="outline" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
@@ -501,17 +501,17 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
     ) : null;
 
   return (
-    <div className="h-full w-full bg-[#eaf0f2]">
+    <div className="h-full w-full bg-[#ECE3D8]">
       <div className="grid h-full items-start gap-4 lg:grid-cols-[68px_1fr]">
         <div className="relative hidden self-start lg:sticky lg:top-4 lg:block">
-          <aside className="flex h-[calc(100vh-8rem)] flex-col justify-between rounded-3xl border border-[#d5e4e7] bg-white px-2 py-10">
+          <aside className="flex h-[calc(100vh-8rem)] flex-col justify-between rounded-3xl border border-[#D4C8BC] bg-white px-2 py-10">
             <div className="flex flex-col items-center gap-3">
               {adminTabs.map((tab) => (
                 <button
                   key={`rail-${tab.label}`}
                   onClick={() => setAdminTab(tab.label)}
                   className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${
-                    adminTab === tab.label ? 'bg-[#0f4a52] text-white' : 'bg-[#f3f5f6] text-[#4f666b] hover:bg-[#e7eef0]'
+                    adminTab === tab.label ? 'bg-[#8A6F5F] text-white' : 'bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
                   }`}
                   aria-label={tab.label}
                   title={tab.label}
@@ -523,7 +523,7 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
             <div className="flex justify-center">
               <button
                 onClick={() => setShowProfileMenu((value) => !value)}
-                className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f3f5f6] text-[#4f666b] transition hover:bg-[#e7eef0]"
+                className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF8F4] text-[#8A6F5F] transition hover:bg-[#ECE3D8]"
                 aria-label="Open profile menu"
                 title="Profile"
               >
@@ -533,11 +533,11 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           </aside>
 
           {showProfileMenu ? (
-            <Card className="absolute bottom-0 left-16 z-20 w-56 border-[#d5e4e7] bg-white p-3 shadow-lg">
-              <p className="text-xs uppercase tracking-wider text-[#6b7f83]">Signed in as</p>
-              <p className="mt-1 text-sm font-semibold text-[#12353a]">{displayName}</p>
-              <p className="text-xs text-[#6b7f83]">{user?.email}</p>
-              <Button className="mt-3 w-full bg-[#0f4a52] text-white hover:bg-[#0a3a41]" onClick={onSignOut}>
+            <Card className="absolute bottom-0 left-16 z-20 w-56 border-[#D4C8BC] bg-white p-3 shadow-lg">
+              <p className="text-xs uppercase tracking-wider text-[#8A6F5F]/60">Signed in as</p>
+              <p className="mt-1 text-sm font-semibold text-[#191919]">{displayName}</p>
+              <p className="text-xs text-[#8A6F5F]/60">{user?.email}</p>
+              <Button className="mt-3 w-full bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={onSignOut}>
                 Sign out
               </Button>
             </Card>
@@ -545,34 +545,34 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
         </div>
 
         <div className="space-y-4">
-          <Card className="relative border-[#d5e4e7] bg-white p-4 sm:p-5 md:p-6">
+          <Card className="relative border-[#D4C8BC] bg-white p-4 sm:p-5 md:p-6">
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-xl font-bold text-[#12353a] sm:text-2xl">The Skin Theory</h2>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-[#0f4a52]">Admin Portal</p>
-                  <h3 className="text-2xl font-bold text-[#12353a] sm:text-3xl md:text-4xl">Welcome Back, Clinic Admin</h3>
+                  <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#191919] sm:text-2xl">The Skin Theory</h2>
+                  <p className="text-sm font-semibold uppercase tracking-wider text-[#8A6F5F]">Admin Portal</p>
+                  <h3 className="text-2xl font-bold text-[#191919] sm:text-3xl md:text-4xl text-balance">Welcome Back, Clinic Admin</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowProfileMenu((value) => !value)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#f3f5f6] text-[#4f666b] transition hover:bg-[#e7eef0] lg:hidden"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF8F4] text-[#8A6F5F] transition hover:bg-[#ECE3D8] lg:hidden"
                     aria-label="Open admin profile menu"
                   >
                     <UserCircle2 size={18} />
                   </button>
-                  <div className="rounded-xl border border-[#d5e4e7] bg-[#f3f5f6] px-3 py-2 text-xs font-semibold text-[#4f666b]">
+                  <div className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2 text-xs font-semibold text-[#8A6F5F]">
                     {formatDateLabel(nowISO())}
                   </div>
                 </div>
               </div>
 
               {showProfileMenu ? (
-                <Card className="z-20 w-full border-[#d5e4e7] bg-white p-3 shadow-md lg:hidden">
-                  <p className="text-xs uppercase tracking-wider text-[#6b7f83]">Signed in as</p>
-                  <p className="mt-1 text-sm font-semibold text-[#12353a]">{displayName}</p>
-                  <p className="text-xs text-[#6b7f83]">{user?.email}</p>
-                  <Button className="mt-3 w-full bg-[#0f4a52] text-white hover:bg-[#0a3a41]" onClick={onSignOut}>
+                <Card className="z-20 w-full border-[#D4C8BC] bg-white p-3 shadow-md lg:hidden">
+                  <p className="text-xs uppercase tracking-wider text-[#8A6F5F]/60">Signed in as</p>
+                  <p className="mt-1 text-sm font-semibold text-[#191919]">{displayName}</p>
+                  <p className="text-xs text-[#8A6F5F]/60">{user?.email}</p>
+                  <Button className="mt-3 w-full bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={onSignOut}>
                     Sign out
                   </Button>
                 </Card>
@@ -585,8 +585,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     onClick={() => setAdminTab(tab.label)}
                     className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                       adminTab === tab.label
-                        ? 'border-[#0f4a52] bg-[#0f4a52] text-white'
-                        : 'border-[#d5e4e7] bg-[#f7f9fa] text-[#4f666b] hover:bg-[#e7eef0]'
+                        ? 'border-[#8A6F5F] bg-[#8A6F5F] text-white'
+                        : 'border-[#D4C8BC] bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
                     }`}
                   >
                     {tab.label}
@@ -601,15 +601,15 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     onClick={() => setAdminTab(tab.label)}
                     className={`rounded-xl border px-3 py-2 text-left transition ${
                       adminTab === tab.label
-                        ? 'border-[#0f4a52] bg-[#0f4a52] text-white'
-                        : 'border-[#d5e4e7] bg-[#f7f9fa] text-[#4f666b] hover:bg-[#e7eef0]'
+                        ? 'border-[#8A6F5F] bg-[#8A6F5F] text-white'
+                        : 'border-[#D4C8BC] bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <tab.icon size={16} />
                       <span className="text-sm font-semibold sm:text-base">{tab.label}</span>
                     </div>
-                    <p className={`mt-0.5 text-sm ${adminTab === tab.label ? 'text-[#dbe8ea]' : 'text-[#6b7f83]'}`}>{tab.hint}</p>
+                    <p className={`mt-0.5 text-sm ${adminTab === tab.label ? 'text-white/70' : 'text-[#8A6F5F]/60'}`}>{tab.hint}</p>
                   </button>
                 ))}
               </div>
@@ -636,37 +636,37 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
               ) : (
                 <>
                   <section className="grid gap-4 lg:grid-cols-12">
-                    <Card className="border-[#d5e4e7] bg-white p-6 lg:col-span-3">
+                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-3">
                       <div className="space-y-4">
-                        <div className="rounded-2xl bg-[#0f4a52] p-4 text-white">
-                          <p className="text-sm uppercase tracking-wider text-[#cce2e5]">Revenue</p>
+                        <div className="rounded-2xl bg-[#8A6F5F] p-4 text-white">
+                          <p className="text-sm uppercase tracking-wider text-[#ECE3D8]/80">Revenue</p>
                           <h3 className="mt-2 text-4xl font-extrabold">{formatMoney(totalRevenueCents)}</h3>
-                          <p className="mt-2 text-sm text-[#cce2e5]">Paid orders total</p>
+                          <p className="mt-2 text-sm text-[#ECE3D8]/80">Paid orders total</p>
                         </div>
-                        <div className="rounded-2xl border border-[#d5e4e7] bg-[#f7f9fa] p-4">
-                          <p className="text-sm uppercase tracking-wider text-[#4f666b]">Orders</p>
+                        <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
+                          <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Orders</p>
                           <div className="mt-2 flex items-center justify-between">
-                            <h4 className="text-4xl font-bold text-[#12353a]">{totalOrders}</h4>
-                            <Package size={20} className="text-[#0f4a52]" />
+                            <h4 className="text-4xl font-bold text-[#191919]">{totalOrders}</h4>
+                            <Package size={20} className="text-[#8A6F5F]" />
                           </div>
                         </div>
-                        <div className="rounded-2xl border border-[#d5e4e7] bg-[#f7f9fa] p-4">
-                          <p className="text-sm uppercase tracking-wider text-[#4f666b]">Appointments</p>
+                        <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
+                          <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Appointments</p>
                           <div className="mt-2 flex items-center justify-between">
-                            <h4 className="text-4xl font-bold text-[#12353a]">{totalAppointments}</h4>
-                            <CalendarClock size={20} className="text-[#0f4a52]" />
+                            <h4 className="text-4xl font-bold text-[#191919]">{totalAppointments}</h4>
+                            <CalendarClock size={20} className="text-[#8A6F5F]" />
                           </div>
                         </div>
                       </div>
                     </Card>
 
-                    <Card className="border-[#d5e4e7] bg-white p-6 lg:col-span-6">
+                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-6">
                       <div className="flex items-center justify-between">
-                        <h3 className="flex items-center gap-2 text-lg font-bold text-[#12353a]">
-                          <TrendingUp size={18} className="text-[#0f4a52]" />
+                        <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
+                          <TrendingUp size={18} className="text-[#8A6F5F]" />
                           Booking Trend
                         </h3>
-                        <span className="rounded-full bg-[#e7eef0] px-3 py-1 text-xs font-semibold text-[#4f666b]">Last 14 days</span>
+                        <span className="rounded-full bg-[#FAF8F4] px-3 py-1 text-xs font-semibold text-[#8A6F5F]">Last 14 days</span>
                       </div>
                       {!bookingTrend.length ? (
                         <div className="mt-4">
@@ -682,50 +682,50 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                               return (
                                 <div key={point.dateISO} className="relative flex flex-col items-center gap-2">
                                   {isHovered ? (
-                                    <div className="pointer-events-none absolute -top-20 z-10 w-40 rounded-lg border border-[#d5e4e7] bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
-                                      <p className="font-semibold text-[#12353a]">{formatDateLabel(point.dateISO)}</p>
+                                    <div className="pointer-events-none absolute -top-20 z-10 w-40 rounded-lg border border-[#D4C8BC] bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+                                      <p className="font-semibold text-[#191919]">{formatDateLabel(point.dateISO)}</p>
                                       <p className="mt-1 text-emerald-700">{point.completed} completed</p>
                                       <p className="text-rose-700">{point.cancelled} cancelled</p>
                                     </div>
                                   ) : null}
                                   <div
-                                    className="flex h-32 w-full cursor-default items-end justify-center rounded-xl bg-[#f3f5f6]"
+                                    className="flex h-32 w-full cursor-default items-end justify-center rounded-xl bg-[#FAF8F4]"
                                     onMouseEnter={() => setHoveredTrendDate(point.dateISO)}
                                     onMouseLeave={() => setHoveredTrendDate((current) => (current === point.dateISO ? null : current))}
                                   >
-                                    <div className="w-6 rounded-t-full bg-[#0f4a52]" style={{ height: `${barHeight}px` }} />
+                                    <div className="w-6 rounded-t-full bg-[#8A6F5F]" style={{ height: `${barHeight}px` }} />
                                   </div>
-                                  <span className="text-[11px] font-semibold text-[#6b7f83]">{formatDateLabel(point.dateISO)}</span>
+                                  <span className="text-[11px] font-semibold text-[#8A6F5F]/60">{formatDateLabel(point.dateISO)}</span>
                                 </div>
                               );
                             })}
                             </div>
                           </div>
 
-                          <div className="rounded-2xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-[#4f666b]">Quick Analytics (Last 14 Days)</p>
+                          <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-3">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]">Quick Analytics (Last 14 Days)</p>
                             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                               <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#6b7f83]">Total Bookings</p>
-                                <p className="text-lg font-bold text-[#12353a]">{bookingTrendSummary.total}</p>
+                                <p className="text-xs text-[#8A6F5F]/60">Total Bookings</p>
+                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.total}</p>
                               </div>
                               <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#6b7f83]">Completed / Cancelled</p>
-                                <p className="text-lg font-bold text-[#12353a]">
+                                <p className="text-xs text-[#8A6F5F]/60">Completed / Cancelled</p>
+                                <p className="text-lg font-bold text-[#191919]">
                                   {bookingTrendSummary.completed} / {bookingTrendSummary.cancelled}
                                 </p>
                               </div>
                               <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#6b7f83]">Completion Rate</p>
-                                <p className="text-lg font-bold text-[#12353a]">{bookingTrendSummary.completionRate}%</p>
+                                <p className="text-xs text-[#8A6F5F]/60">Completion Rate</p>
+                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.completionRate}%</p>
                               </div>
                               <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#6b7f83]">Cancellation Rate</p>
-                                <p className="text-lg font-bold text-[#12353a]">{bookingTrendSummary.cancellationRate}%</p>
+                                <p className="text-xs text-[#8A6F5F]/60">Cancellation Rate</p>
+                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.cancellationRate}%</p>
                               </div>
                               <div className="rounded-xl bg-white px-3 py-2 sm:col-span-2 lg:col-span-2">
-                                <p className="text-xs text-[#6b7f83]">Busiest Day</p>
-                                <p className="text-lg font-bold text-[#12353a]">
+                                <p className="text-xs text-[#8A6F5F]/60">Busiest Day</p>
+                                <p className="text-lg font-bold text-[#191919]">
                                   {bookingTrendSummary.busiestDay
                                     ? `${formatDateLabel(bookingTrendSummary.busiestDay.dateISO)} (${bookingTrendSummary.busiestDay.total})`
                                     : 'N/A'}
@@ -737,16 +737,16 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                       )}
                     </Card>
 
-                    <Card className="border-[#d5e4e7] bg-white p-6 lg:col-span-3">
-                      <div className="rounded-2xl border border-[#d5e4e7] bg-[#f7f9fa] p-4">
-                        <p className="text-sm uppercase tracking-wider text-[#4f666b]">Credit Amount</p>
+                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-3">
+                      <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
+                        <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Credit Amount</p>
                         <div className="mt-2 flex items-center justify-between">
-                          <p className="text-5xl font-bold text-[#12353a]">{formatMoney(totalRevenueCents)}</p>
+                          <p className="text-5xl font-bold text-[#191919]">{formatMoney(totalRevenueCents)}</p>
                         </div>
                       </div>
-                      <div className="mt-3 rounded-2xl border border-[#d5e4e7] bg-[#f7f9fa] p-4">
-                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#12353a]">
-                          <Bell size={16} className="text-[#0f4a52]" />
+                      <div className="mt-3 rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#191919]">
+                          <Bell size={16} className="text-[#8A6F5F]" />
                           Inventory Alerts
                         </h3>
                         {productsQuery.isLoading ? (
@@ -783,12 +783,12 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                   </section>
 
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <Card className="border-[#d5e4e7] bg-white p-5">
-                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#12353a]">
-                        <CalendarClock size={18} className="text-[#0f4a52]" />
+                    <Card className="border-[#D4C8BC] bg-white p-5">
+                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
+                        <CalendarClock size={18} className="text-[#8A6F5F]" />
                         Upcoming Appointments
                       </h3>
-                      <p className="text-sm text-[#6b7f83]">Next 30 days</p>
+                      <p className="text-sm text-[#8A6F5F]/60">Next 30 days</p>
                       {!upcomingAppointments.length ? (
                         <div className="mt-4">
                           <EmptyState title="No Upcoming Appointments" subtitle="New bookings will appear here." />
@@ -796,8 +796,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                       ) : (
                         <div className="mt-4 grid gap-2">
                           {pagedUpcomingAppointments.map((appointment) => (
-                            <div key={appointment.id} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-3 py-2.5 text-sm">
-                              <p className="font-semibold text-[#12353a]">{appointment.serviceName}</p>
+                            <div key={appointment.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2.5 text-sm">
+                              <p className="font-semibold text-[#191919]">{appointment.serviceName}</p>
                               <p className="text-[#4f666b]">
                                 {appointment.dateISO} at {appointment.timeSlot}
                               </p>
@@ -808,12 +808,12 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                       <Pagination page={upcomingPage} totalPages={upcomingTotalPages} onPageChange={setUpcomingPage} />
                     </Card>
 
-                    <Card className="border-[#d5e4e7] bg-white p-5">
-                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#12353a]">
-                        <LayoutDashboard size={18} className="text-[#0f4a52]" />
+                    <Card className="border-[#D4C8BC] bg-white p-5">
+                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
+                        <LayoutDashboard size={18} className="text-[#8A6F5F]" />
                         Payment Overview
                       </h3>
-                      <p className="text-sm text-[#6b7f83]">Recent orders and performance</p>
+                      <p className="text-sm text-[#8A6F5F]/60">Recent orders and performance</p>
                       {!recentOrders.length ? (
                         <div className="mt-4">
                           <EmptyState title="No Orders Yet" subtitle="Payment metrics will appear here." />
@@ -821,12 +821,12 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                       ) : (
                         <div className="mt-4 space-y-2">
                           {pagedPaymentOverview.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-3 py-2">
+                            <div key={order.id} className="flex items-center justify-between rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
                               <div>
-                                <p className="text-sm font-semibold text-[#12353a]">Order {order.id.slice(0, 8)}...</p>
-                                <p className="text-xs text-[#6b7f83]">{formatDateLabel(order.createdAt)}</p>
+                                <p className="text-sm font-semibold text-[#191919]">Order {order.id.slice(0, 8)}...</p>
+                                <p className="text-xs text-[#8A6F5F]/60">{formatDateLabel(order.createdAt)}</p>
                               </div>
-                              <p className="text-sm font-semibold text-[#0f4a52]">{formatMoney(order.totalCents)}</p>
+                              <p className="text-sm font-semibold text-[#8A6F5F]">{formatMoney(order.totalCents)}</p>
                             </div>
                           ))}
                         </div>
@@ -840,14 +840,14 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : null}
 
           {adminTab === 'Alerts' ? (
-            <Card className="border-[#d5e4e7] bg-white p-5 md:p-6">
+            <Card className="border-[#D4C8BC] bg-white p-5 md:p-6">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl bg-amber-100 p-2 text-amber-700">
                   <Bell size={20} />
                 </div>
                 <div className="w-full">
-                  <h3 className="text-2xl font-bold text-[#12353a]">Complete Inventory Notifications</h3>
-                  <p className="text-base text-[#4f666b]">Out-of-stock and low-stock alerts based on current inventory.</p>
+                  <h3 className="text-2xl font-bold text-[#191919]">Complete Inventory Notifications</h3>
+                  <p className="text-base text-[#8A6F5F]/60">Out-of-stock and low-stock alerts based on current inventory.</p>
                   {productsQuery.isLoading ? (
                     <div className="mt-4 space-y-2">
                       <Skeleton className="h-12 w-full" />
@@ -886,25 +886,25 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           {adminTab === 'Revenue' ? (
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-3">
-                <Card className="border-[#d5e4e7] bg-white p-5">
-                  <p className="text-sm uppercase tracking-wider text-[#4f666b]">Orders Revenue Received</p>
-                  <p className="mt-2 text-3xl font-bold text-[#0f4a52]">{formatMoney(ordersRevenueCents)}</p>
+                <Card className="border-[#D4C8BC] bg-white p-5">
+                  <p className="text-sm uppercase tracking-wider text-[#8A6F5F]/60">Orders Revenue Received</p>
+                  <p className="mt-2 text-3xl font-bold text-[#8A6F5F]">{formatMoney(ordersRevenueCents)}</p>
                 </Card>
-                <Card className="border-[#d5e4e7] bg-white p-5">
-                  <p className="text-sm uppercase tracking-wider text-[#4f666b]">Services Revenue Received</p>
-                  <p className="mt-2 text-3xl font-bold text-[#0f4a52]">{formatMoney(servicesRevenueCents)}</p>
+                <Card className="border-[#D4C8BC] bg-white p-5">
+                  <p className="text-sm uppercase tracking-wider text-[#8A6F5F]/60">Services Revenue Received</p>
+                  <p className="mt-2 text-3xl font-bold text-[#8A6F5F]">{formatMoney(servicesRevenueCents)}</p>
                 </Card>
-                <Card className="border-[#d5e4e7] bg-white p-5">
-                  <p className="text-sm uppercase tracking-wider text-[#4f666b]">Total Revenue Received</p>
-                  <p className="mt-2 text-3xl font-bold text-[#12353a]">{formatMoney(totalRevenueCents)}</p>
+                <Card className="border-[#D4C8BC] bg-white p-5">
+                  <p className="text-sm uppercase tracking-wider text-[#8A6F5F]/60">Total Revenue Received</p>
+                  <p className="mt-2 text-3xl font-bold text-[#191919]">{formatMoney(totalRevenueCents)}</p>
                 </Card>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="border-[#d5e4e7] bg-white p-5 md:p-6">
+              <Card className="border-[#D4C8BC] bg-white p-5 md:p-6">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-[#12353a]">Completed Orders</h3>
-                  <span className="rounded-full bg-[#e7eef0] px-3 py-1 text-xs font-semibold text-[#4f666b]">
+                  <h3 className="text-2xl font-bold text-[#191919]">Completed Orders</h3>
+                  <span className="rounded-full bg-[#FAF8F4] px-3 py-1 text-xs font-semibold text-[#8A6F5F]">
                     {completedOrders.length} orders
                   </span>
                 </div>
@@ -913,13 +913,13 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                 ) : (
                   <div className="space-y-2">
                     {pagedRevenueOrders.map((order) => (
-                      <div key={order.id} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-4 py-3">
+                      <div key={order.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-4 py-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-[#12353a]">Order {order.id.slice(0, 8)}...</p>
-                          <p className="text-sm font-semibold text-[#0f4a52]">{formatMoney(order.totalCents)}</p>
+                          <p className="text-sm font-semibold text-[#191919]">Order {order.id.slice(0, 8)}...</p>
+                          <p className="text-sm font-semibold text-[#8A6F5F]">{formatMoney(order.totalCents)}</p>
                         </div>
-                        <p className="mt-1 text-xs text-[#6b7f83]">{formatDateLabel(order.createdAt)}</p>
-                        <p className="mt-1 text-xs text-[#4f666b]">{order.items.map((i) => `${i.name} x${i.quantity}`).join(', ')}</p>
+                        <p className="mt-1 text-xs text-[#8A6F5F]/60">{formatDateLabel(order.createdAt)}</p>
+                        <p className="mt-1 text-xs text-[#8A6F5F]/60">{order.items.map((i) => `${i.name} x${i.quantity}`).join(', ')}</p>
                       </div>
                     ))}
                   </div>
@@ -927,10 +927,10 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                 <Pagination page={revenueOrdersPage} totalPages={revenueOrdersTotalPages} onPageChange={setRevenueOrdersPage} />
               </Card>
 
-              <Card className="border-[#d5e4e7] bg-white p-5 md:p-6">
+              <Card className="border-[#D4C8BC] bg-white p-5 md:p-6">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-[#12353a]">Completed Services</h3>
-                  <span className="rounded-full bg-[#e7eef0] px-3 py-1 text-xs font-semibold text-[#4f666b]">
+                  <h3 className="text-2xl font-bold text-[#191919]">Completed Services</h3>
+                  <span className="rounded-full bg-[#FAF8F4] px-3 py-1 text-xs font-semibold text-[#8A6F5F]">
                     {completedServices.length} services
                   </span>
                 </div>
@@ -939,12 +939,12 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                 ) : (
                   <div className="space-y-2">
                     {servicesRevenueBreakdown.map((service) => (
-                      <div key={`${service.serviceId}-${service.serviceName}`} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-4 py-3">
+                      <div key={`${service.serviceId}-${service.serviceName}`} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-4 py-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold text-[#12353a]">{service.serviceName}</p>
-                          <p className="text-sm font-semibold text-[#0f4a52]">{formatMoney(service.revenueCents)}</p>
+                          <p className="text-sm font-semibold text-[#191919]">{service.serviceName}</p>
+                          <p className="text-sm font-semibold text-[#8A6F5F]">{formatMoney(service.revenueCents)}</p>
                         </div>
-                        <p className="mt-1 text-xs text-[#6b7f83]">Completed: {service.count}</p>
+                        <p className="mt-1 text-xs text-[#8A6F5F]/60">Completed: {service.count}</p>
                       </div>
                     ))}
                   </div>
@@ -955,8 +955,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : null}
 
           {adminTab === 'Appointments' ? (
-        <Card className="border-[#d5e4e7] bg-white p-5">
-          <h3 className="text-xl font-bold text-slate-800">Recent Appointments</h3>
+        <Card className="border-[#D4C8BC] bg-white p-5">
+          <h3 className="text-xl font-bold text-[#191919]">Recent Appointments</h3>
           {clinicBookingsQuery.isLoading ? (
             <div className="mt-4 space-y-2">
               <Skeleton className="h-14 w-full" />
@@ -981,20 +981,20 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : (
             <div className="mt-4 space-y-3">
               {pagedAppointments.map((appointment) => (
-                <div key={appointment.id} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-4 py-3 text-sm">
+                <div key={appointment.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-4 py-3 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold text-slate-800">{appointment.serviceName}</p>
+                    <p className="font-semibold text-[#191919]">{appointment.serviceName}</p>
                     <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold capitalize ${statusBadgeClass(appointment.status)}`}>
                       {appointment.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-slate-600">
+                  <p className="mt-1 text-[#8A6F5F]/70">
                     {appointment.dateISO} at {appointment.timeSlot} | patient: {appointment.patientUid.slice(0, 8)}...
                   </p>
                   {appointment.status === 'scheduled' ? (
                     <div className="mt-3 flex gap-2">
                         <Button
-                          className="bg-[#0f4a52] text-white hover:bg-[#0a3a41]"
+                          className="bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]"
                           onClick={() => handleStatusUpdate(appointment.id, 'completed')}
                           disabled={updateAppointmentStatus.isLoading}
                         >
@@ -1018,8 +1018,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : null}
 
           {adminTab === 'Orders' ? (
-        <Card className="border-[#d5e4e7] bg-white p-5">
-          <h3 className="text-xl font-bold text-slate-800">Recent Orders</h3>
+        <Card className="border-[#D4C8BC] bg-white p-5">
+          <h3 className="text-xl font-bold text-[#191919]">Recent Orders</h3>
           {clinicOrdersQuery.isLoading ? (
             <div className="mt-4 space-y-2">
               <Skeleton className="h-14 w-full" />
@@ -1044,15 +1044,15 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : (
             <div className="mt-4 space-y-3">
               {pagedOrders.map((order) => (
-                <div key={order.id} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-4 py-3 text-sm">
+                <div key={order.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-4 py-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <p className="font-semibold text-slate-800">Order {order.id.slice(0, 8)}...</p>
+                    <p className="font-semibold text-[#191919]">Order {order.id.slice(0, 8)}...</p>
                     <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold capitalize ${statusBadgeClass(order.status)}`}>
                       {order.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-slate-600">Items: {order.items.map((i) => `${i.name} x${i.quantity}`).join(', ')}</p>
-                  <p className="mt-1 font-semibold text-teal-700">{formatMoney(order.totalCents)}</p>
+                  <p className="mt-1 text-[#8A6F5F]/70">Items: {order.items.map((i) => `${i.name} x${i.quantity}`).join(', ')}</p>
+                  <p className="mt-1 font-semibold text-[#8A6F5F]">{formatMoney(order.totalCents)}</p>
                 </div>
               ))}
             </div>
@@ -1062,8 +1062,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : null}
 
           {adminTab === 'Enquiries' ? (
-        <Card className="border-[#d5e4e7] bg-white p-5">
-          <h3 className="text-xl font-bold text-slate-800">Customer Enquiries</h3>
+        <Card className="border-[#D4C8BC] bg-white p-5">
+          <h3 className="text-xl font-bold text-[#191919]">Customer Enquiries</h3>
           {enquiriesQuery.isLoading ? (
             <div className="mt-4 space-y-2">
               <Skeleton className="h-14 w-full" />
@@ -1088,16 +1088,16 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           ) : (
             <div className="mt-4 space-y-3">
               {recentEnquiries.map((enquiry) => (
-                <div key={enquiry.id} className="rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] px-4 py-3 text-sm">
+                <div key={enquiry.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-4 py-3 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold text-slate-800">{enquiry.fullName}</p>
-                    <span className="rounded-full border border-[#d5e4e7] bg-white px-2 py-0.5 text-xs font-semibold text-[#4f666b]">
+                    <p className="font-semibold text-[#191919]">{enquiry.fullName}</p>
+                    <span className="rounded-full border border-[#D4C8BC] bg-white px-2 py-0.5 text-xs font-semibold text-[#8A6F5F]">
                       {formatDateLabel(enquiry.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-1 text-slate-600">Mobile: {enquiry.mobile}</p>
-                  <p className="text-slate-600">Email: {enquiry.email}</p>
-                  <p className="mt-1 text-xs text-[#6b7f83]">User: {enquiry.patientUid.slice(0, 8)}...</p>
+                  <p className="mt-1 text-[#8A6F5F]/70">Mobile: {enquiry.mobile}</p>
+                  <p className="text-[#8A6F5F]/70">Email: {enquiry.email}</p>
+                  <p className="mt-1 text-xs text-[#8A6F5F]/40">User: {enquiry.patientUid.slice(0, 8)}...</p>
                 </div>
               ))}
             </div>
@@ -1108,22 +1108,22 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           {adminTab === 'Catalog' ? (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
-            <Card className="border-[#d5e4e7] bg-white p-5">
+            <Card className="border-[#D4C8BC] bg-white p-5">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800">Service Catalog</h3>
-                <span className="rounded-full bg-teal-50 px-2 py-1 text-xs font-semibold text-teal-700">{servicesQuery.data.length} active</span>
+                <h3 className="text-xl font-bold text-[#191919]">Service Catalog</h3>
+                <span className="rounded-full bg-[#FAF8F4] px-2 py-1 text-xs font-semibold text-[#8A6F5F]">{servicesQuery.data.length} active</span>
               </div>
-              <div className="space-y-2 text-sm text-slate-600">
+              <div className="space-y-2 text-sm text-[#8A6F5F]/70">
                 {servicesQuery.data.slice(0, 5).map((service) => (
-                  <div key={service.id} className="flex items-center justify-between rounded-lg border border-[#d5e4e7] bg-[#f7f9fa] px-3 py-2">
+                  <div key={service.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
                     <span>{service.name}</span>
-                    <span className="font-semibold text-teal-700">{formatMoney(service.priceCents)}</span>
+                    <span className="font-semibold text-[#8A6F5F]">{formatMoney(service.priceCents)}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Create / Update Service</p>
+              <div className="mt-4 space-y-2 border-t border-[#D4C8BC]/30 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Create / Update Service</p>
                 <Input
                   placeholder="service id (e.g. svc-laser)"
                   value={serviceForm.id}
@@ -1156,28 +1156,28 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     onChange={(e) => setServiceForm((s) => ({ ...s, priceCents: e.target.value }))}
                   />
                 </div>
-                <Button className="bg-[#0f4a52] text-white hover:bg-[#0a3a41]" onClick={submitService} disabled={upsertService.isLoading}>
+                <Button className="bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={submitService} disabled={upsertService.isLoading}>
                   {upsertService.isLoading ? 'Saving...' : 'Save Service'}
                 </Button>
               </div>
             </Card>
 
-            <Card className="border-[#d5e4e7] bg-white p-5">
+            <Card className="border-[#D4C8BC] bg-white p-5">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800">Product Inventory</h3>
-                <span className="rounded-full bg-teal-50 px-2 py-1 text-xs font-semibold text-teal-700">{productsQuery.data.length} active</span>
+                <h3 className="text-xl font-bold text-[#191919]">Product Inventory</h3>
+                <span className="rounded-full bg-[#FAF8F4] px-2 py-1 text-xs font-semibold text-[#8A6F5F]">{productsQuery.data.length} active</span>
               </div>
-              <div className="space-y-2 text-sm text-slate-600">
+              <div className="space-y-2 text-sm text-[#8A6F5F]/70">
                 {topLowStock.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between rounded-lg border border-[#d5e4e7] bg-[#f7f9fa] px-3 py-2">
+                  <div key={product.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
                     <span>{product.name}</span>
                     <span className="font-semibold text-rose-700">Stock {product.stock}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Create / Update Product</p>
+              <div className="mt-4 space-y-2 border-t border-[#D4C8BC]/30 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Create / Update Product</p>
                 <Input
                   placeholder="product id (e.g. prd-new)"
                   value={productForm.id}
@@ -1202,30 +1202,30 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     onChange={(e) => setProductForm((s) => ({ ...s, priceCents: e.target.value }))}
                   />
                 </div>
-                <Button className="bg-[#0f4a52] text-white hover:bg-[#0a3a41]" onClick={submitProduct} disabled={upsertProduct.isLoading}>
+                <Button className="bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={submitProduct} disabled={upsertProduct.isLoading}>
                   {upsertProduct.isLoading ? 'Saving...' : 'Save Product'}
                 </Button>
               </div>
             </Card>
           </div>
 
-          <Card className="border-[#d5e4e7] bg-white p-5">
+          <Card className="border-[#D4C8BC] bg-white p-5">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-slate-800">Doctor Slot Management</h3>
-              <span className="rounded-full bg-teal-50 px-2 py-1 text-xs font-semibold text-teal-700">
+              <h3 className="text-xl font-bold text-[#191919]">Doctor Slot Management</h3>
+              <span className="rounded-full bg-[#FAF8F4] px-2 py-1 text-xs font-semibold text-[#8A6F5F]">
                 {slotManagementQuery.data ? 'Configured' : 'Default'}
               </span>
             </div>
-            <p className="text-sm text-[#4f666b]">
+            <p className="text-sm text-[#8A6F5F]/60">
               Manage weekly availability, blocked dates, and date-specific slot overrides. Booking flow will use this configuration.
             </p>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Weekly Slots (comma-separated HH:MM)</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Weekly Slots (comma-separated HH:MM)</p>
                 {weekdayLabels.map((day) => (
                   <div key={day.key} className="grid grid-cols-[110px_1fr] items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-700">{day.label}</span>
+                    <span className="text-sm font-semibold text-[#8A6F5F]">{day.label}</span>
                     <Input
                       value={weeklySlotInputs[day.key]}
                       onChange={(e) => setWeeklySlotInputs((current) => ({ ...current, [day.key]: e.target.value }))}
@@ -1236,8 +1236,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
               </div>
 
               <div className="space-y-4">
-                <div className="space-y-2 rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Blocked Dates</p>
+                <div className="space-y-2 rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Blocked Dates</p>
                   <div className="flex gap-2">
                     <Input type="date" value={blockedDateInput} onChange={(e) => setBlockedDateInput(e.target.value)} />
                     <Button variant="outline" onClick={addBlockedDate}>
@@ -1249,18 +1249,18 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                       <button
                         key={dateISO}
                         onClick={() => removeBlockedDate(dateISO)}
-                        className="rounded-full border border-[#d5e4e7] bg-white px-2 py-1 text-xs font-semibold text-[#4f666b] hover:bg-[#eef3f4]"
+                        className="rounded-full border border-[#D4C8BC] bg-white px-2 py-1 text-xs font-semibold text-[#8A6F5F] hover:bg-[#ECE3D8]"
                         title="Remove blocked date"
                       >
                         {dateISO} x
                       </button>
                     ))}
-                    {!blockedDates.length ? <p className="text-xs text-slate-500">No blocked dates.</p> : null}
+                    {!blockedDates.length ? <p className="text-xs text-[#8A6F5F]/30">No blocked dates.</p> : null}
                   </div>
                 </div>
 
-                <div className="space-y-2 rounded-xl border border-[#d5e4e7] bg-[#f7f9fa] p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date Override</p>
+                <div className="space-y-2 rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]/60">Date Override</p>
                   <Input type="date" value={overrideDateInput} onChange={(e) => setOverrideDateInput(e.target.value)} />
                   <Input
                     value={overrideSlotsInput}
@@ -1268,7 +1268,7 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     placeholder="08:00, 09:30, 10:00"
                     disabled={overrideClosed}
                   />
-                  <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                  <label className="inline-flex items-center gap-2 text-sm text-[#8A6F5F]">
                     <input type="checkbox" checked={overrideClosed} onChange={(e) => setOverrideClosed(e.target.checked)} />
                     Mark this date as closed
                   </label>
@@ -1281,9 +1281,9 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                     {overrides.map((override) => (
                       <div
                         key={override.dateISO}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#d5e4e7] bg-white px-2 py-1.5 text-xs"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#D4C8BC] bg-white px-2 py-1.5 text-xs"
                       >
-                        <p className="font-semibold text-[#12353a]">
+                        <p className="font-semibold text-[#191919]">
                           {override.dateISO} - {override.isClosed ? 'Closed' : override.slots.join(', ')}
                         </p>
                         <button className="font-semibold text-rose-700" onClick={() => removeOverride(override.dateISO)}>
@@ -1291,7 +1291,7 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                         </button>
                       </div>
                     ))}
-                    {!overrides.length ? <p className="text-xs text-slate-500">No overrides configured.</p> : null}
+                    {!overrides.length ? <p className="text-xs text-[#8A6F5F]/30">No overrides configured.</p> : null}
                   </div>
                 </div>
               </div>
@@ -1299,7 +1299,7 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
 
             <div className="mt-4">
               <Button
-                className="bg-[#0f4a52] text-white hover:bg-[#0a3a41]"
+                className="bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]"
                 onClick={submitSlotManagement}
                 disabled={upsertSlotManagement.isLoading}
               >
@@ -1309,8 +1309,8 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
           </Card>
 
           {statusMessage ? (
-            <Card className="border-teal-200 bg-teal-50 p-3">
-              <p className="text-sm font-medium text-teal-700">{statusMessage}</p>
+            <Card className="border-[#D4C8BC] bg-[#F5F0EA] p-3">
+              <p className="text-sm font-medium text-[#8A6F5F]">{statusMessage}</p>
             </Card>
           ) : null}
         </>

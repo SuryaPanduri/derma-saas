@@ -31,3 +31,6 @@ yarn-error.log*
 request.auth.token.role
 
 .firebase/
+
+# agent config
+.agent/

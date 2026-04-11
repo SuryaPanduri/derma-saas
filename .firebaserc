@@ -2,6 +2,17 @@
   "projects": {
     "staging": "derma-clinic-mvp"
   },
-  "targets": {},
+  "targets": {
+    "derma-clinic-mvp": {
+      "hosting": {
+        "website": [
+          "derma-clinic-mvp"
+        ],
+        "app": [
+          "skin-theory-demo-pwa"
+        ]
+      }
+    }
+  },
   "etags": {}
 }

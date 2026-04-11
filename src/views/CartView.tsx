@@ -1,91 +1,113 @@
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useCartStore } from '@/store';
+import { useToast } from '@/contexts/ToastContext';
 import { formatMoney } from '@/utils/moneyUtils';
-import { BadgePercent, Package, ShieldCheck, Truck } from 'lucide-react';
+import { Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => void }) => {
-  const { items, removeProduct } = useCartStore();
+  const { items, removeProduct, addProduct } = useCartStore();
+  const toast = useToast();
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  if (!items.length) {
+    return (
+      <div className="py-16">
+        <EmptyState title="Your cart is empty" subtitle="Add products from the catalog to get started." />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <Card className="border-teal-100 bg-gradient-to-r from-white to-teal-50 p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-teal-700">Cart</p>
-            <h2 className="mt-1 text-2xl font-bold text-slate-900">Cart Items</h2>
-            <p className="mt-1 text-sm text-slate-600">Review products in your cart, then continue to checkout.</p>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-3 py-1.5 text-xs font-semibold text-teal-700">
-            <Package size={14} />
-            {itemCount} item{itemCount === 1 ? '' : 's'}
-          </div>
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#d5e4e7] bg-white p-3 text-sm text-[#4f666b]">
-            <p className="inline-flex items-center gap-1 font-semibold text-[#12353a]"><ShieldCheck size={14} /> Secure checkout</p>
-            <p className="mt-1 text-xs">Transaction-safe order placement</p>
-          </div>
-          <div className="rounded-xl border border-[#d5e4e7] bg-white p-3 text-sm text-[#4f666b]">
-            <p className="inline-flex items-center gap-1 font-semibold text-[#12353a]"><Truck size={14} /> Fast dispatch</p>
-            <p className="mt-1 text-xs">Live tracking after order confirmation</p>
-          </div>
-          <div className="rounded-xl border border-[#d5e4e7] bg-white p-3 text-sm text-[#4f666b]">
-            <p className="inline-flex items-center gap-1 font-semibold text-[#12353a]"><BadgePercent size={14} /> Offers ready</p>
-            <p className="mt-1 text-xs">Apply coupons during checkout</p>
-          </div>
-        </div>
-      </Card>
+    <div className="animate-in fade-in duration-300">
+      <div className="mb-8">
+        <h2 className="font-['Playfair_Display'] text-3xl font-bold tracking-tight text-[#2C2420]">Your Cart</h2>
+        <p className="mt-1 text-[13px] text-[#B5A99A]">{itemCount} {itemCount === 1 ? 'item' : 'items'}</p>
+      </div>
 
-      {!items.length ? (
-        <Card className="p-4 sm:p-5">
-          <EmptyState title="Your Cart Is Empty" subtitle="Add products from the catalog to continue." />
-        </Card>
-      ) : (
-        <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-          <Card className="p-4 sm:p-5">
-            <h3 className="text-lg font-bold text-slate-800">Items</h3>
-            <div className="mt-4 space-y-3">
-              {items.map((item) => (
-                <div
-                  key={item.productId}
-                  className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+        {/* Items */}
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div
+              key={item.productId}
+              className="flex items-center gap-5 rounded-xl border border-[#E8E2DC] bg-white p-5 transition-colors hover:border-[#D4C8BC]"
+            >
+              <div className="h-16 w-16 shrink-0 rounded-lg bg-[#F5F0EB] flex items-center justify-center text-[#8A6F5F]/20">
+                <ShoppingBag size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-[#1A1A1A] truncate">{item.name}</h4>
+                <p className="mt-0.5 text-[12px] text-[#B5A99A]">{formatMoney(item.unitPriceCents)} each</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border border-[#E8E2DC] px-2 py-1">
+                <button
+                  onClick={() => {
+                    if (item.quantity > 1) {
+                      // Remove and re-add with one less
+                      removeProduct(item.productId);
+                      addProduct({ id: item.productId, name: item.name, sku: '', priceCents: item.unitPriceCents, stock: 99, clinicId: '', isActive: true, description: '', imageUrl: '', createdAt: '', updatedAt: '' } as any, item.quantity - 1);
+                    }
+                  }}
+                  className="p-1 text-[#B5A99A] hover:text-[#8A6F5F] transition-colors"
                 >
-                  <div>
-                    <p className="font-semibold text-slate-800">{item.name}</p>
-                    <p className="text-slate-500">Qty {item.quantity}</p>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 sm:justify-end">
-                    <p className="font-semibold text-teal-700">{formatMoney(item.unitPriceCents * item.quantity)}</p>
-                    <Button variant="ghost" onClick={() => removeProduct(item.productId)}>
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                  <Minus size={14} />
+                </button>
+                <span className="w-6 text-center text-sm font-semibold text-[#1A1A1A]">{item.quantity}</span>
+                <button
+                  onClick={() => addProduct({ id: item.productId, name: item.name, sku: '', priceCents: item.unitPriceCents, stock: 99, clinicId: '', isActive: true, description: '', imageUrl: '', createdAt: '', updatedAt: '' } as any, 1)}
+                  className="p-1 text-[#B5A99A] hover:text-[#8A6F5F] transition-colors"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+              <p className="w-20 text-right text-sm font-semibold text-[#1A1A1A]">{formatMoney(item.unitPriceCents * item.quantity)}</p>
+              <button
+                onClick={() => removeProduct(item.productId)}
+                className="p-1 text-[#B5A99A] hover:text-red-500 transition-colors"
+              >
+                <X size={16} />
+              </button>
             </div>
-          </Card>
-
-          <Card className="h-fit p-4 sm:p-5">
-            <h3 className="text-lg font-bold text-slate-800">Cart Summary</h3>
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Subtotal</p>
-              <p className="text-lg font-bold text-slate-900">{formatMoney(subtotal)}</p>
-            </div>
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Items</p>
-              <p className="text-sm font-semibold text-slate-800">{itemCount}</p>
-            </div>
-            <Button className="mt-5 w-full" onClick={onProceedToCheckout}>
-              Proceed to Checkout
-            </Button>
-          </Card>
+          ))}
         </div>
-      )}
+
+        {/* Summary */}
+        <div className="lg:sticky lg:top-24">
+          <div className="rounded-xl border border-[#E8E2DC] bg-white p-6">
+            <h3 className="text-base font-semibold text-[#1A1A1A]">Order Summary</h3>
+            <div className="mt-6 space-y-3">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-[#B5A99A]">Subtotal</span>
+                <span className="font-semibold text-[#1A1A1A]">{formatMoney(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-[#B5A99A]">Shipping</span>
+                <span className="font-medium text-[#8A6F5F]">Free</span>
+              </div>
+              <div className="border-t border-[#E8E2DC] pt-3 flex justify-between">
+                <span className="text-sm font-semibold text-[#1A1A1A]">Total</span>
+                <span className="text-lg font-bold text-[#1A1A1A]">{formatMoney(subtotal)}</span>
+              </div>
+            </div>
+            <Button
+              className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#1A1A1A] text-[13px] font-medium text-white hover:bg-[#8A6F5F] transition-colors"
+              onClick={() => {
+                toast.success("Proceeding to checkout");
+                onProceedToCheckout();
+              }}
+            >
+              Checkout <ArrowRight size={16} />
+            </Button>
+            <div className="mt-4 flex items-center justify-center gap-2 text-[#B5A99A]">
+              <ShieldCheck size={14} />
+              <span className="text-[11px] font-medium">Secure checkout</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

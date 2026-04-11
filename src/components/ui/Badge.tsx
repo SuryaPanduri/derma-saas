@@ -3,7 +3,7 @@ import { cn } from '@/utils/cn';
 
 export const Badge = ({ className, ...props }: HTMLAttributes<HTMLSpanElement>) => (
   <span
-    className={cn('inline-flex rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700', className)}
+    className={cn('inline-flex rounded-full bg-[#F5F0EA] px-2.5 py-1 text-xs font-semibold text-[#8A6F5F]', className)}
     {...props}
   />
 );

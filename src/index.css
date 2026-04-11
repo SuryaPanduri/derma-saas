@@ -1,11 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'Manrope', 'Segoe UI', sans-serif;
-  color: #243038;
-  background-color: #f8f5ee;
+  --brand-bronze: #8A6F5F;
+  --brand-bronze-dark: #5D4A3E;
+  --brand-bronze-light: #A68A78;
+  --brand-pale: #D4C8BC;
+  --brand-beige: #ECE3D8;
+  --brand-beige-light: #F5F0EA;
+  --brand-charcoal: #191919;
+  
+  --foreground-rgb: 25, 25, 25;
+  --background-start-rgb: 236, 227, 216;
+  --background-end-rgb: 245, 240, 234;
+}
+
+::selection {
+  background-color: var(--brand-bronze);
+  color: white;
 }
 
 body {
@@ -68,4 +83,44 @@ body {
 
 .enquiry-glow {
   animation: enquiryGlowPulse 2.2s ease-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-in {
+  animation-duration: 500ms;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-bottom-2 {
+  animation-name: slideInFromBottom;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slideInFromTop;
+}
+
+.duration-700 {
+  animation-duration: 700ms;
+}
+
+.shadow-shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(138, 111, 95, 0.2);
 }

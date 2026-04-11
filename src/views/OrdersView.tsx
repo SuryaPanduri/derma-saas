@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { useCreateOrder, useOrders } from '@/hooks';
@@ -7,7 +6,8 @@ import { formatMoney } from '@/utils/moneyUtils';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { formatDateLabel } from '@/utils/dateUtils';
-import { CheckCircle2, Clock3, PackageCheck, Truck } from 'lucide-react';
+import { useToast } from '@/contexts/ToastContext';
+import { CheckCircle2, Clock3, PackageCheck, Truck, ShoppingBag, Calendar, X, Box } from 'lucide-react';
 
 const COUPONS = [
   { code: 'SKINTHEORY25', label: '25% OFF up to Rs 500' },
@@ -16,240 +16,212 @@ const COUPONS = [
 
 export const OrdersView = ({
   clinicId,
-  showTracking = true,
+  showHistory = true,
   showCheckout = true
 }: {
   clinicId: string;
-  showTracking?: boolean;
+  showHistory?: boolean;
   showCheckout?: boolean;
 }) => {
   const user = useAuthStore((state) => state.user);
-  const { items, clearCart, removeProduct } = useCartStore();
+  const { items, clearCart, removeProduct, addProduct } = useCartStore();
   const ordersQuery = useOrders(user?.id ?? '');
   const { mutateAsync, isLoading } = useCreateOrder();
-  const [checkoutMessage, setCheckoutMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const toast = useToast();
+
+  const [activeTab, setActiveTab] = useState<'history' | 'checkout'>(items.length > 0 && showCheckout ? 'checkout' : 'history');
   const [couponInput, setCouponInput] = useState('');
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
   const [nowTick, setNowTick] = useState(() => Date.now());
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
-  const couponRule = COUPONS.find((coupon) => coupon.code === appliedCouponCode);
-  const rawDiscountCents = couponRule
-    ? Math.floor((subtotal * (couponRule.code === 'SKINTHEORY25' ? 25 : 10)) / 100)
-    : 0;
-  const maxDiscountCents = couponRule ? (couponRule.code === 'SKINTHEORY25' ? 50000 : 25000) : 0;
-  const discountCents = couponRule ? Math.min(rawDiscountCents, maxDiscountCents) : 0;
-  const total = Math.max(0, subtotal - discountCents);
+  const couponRule = COUPONS.find((c) => c.code === appliedCouponCode);
+  const rawDiscount = couponRule ? Math.floor((subtotal * (couponRule.code === 'SKINTHEORY25' ? 25 : 10)) / 100) : 0;
+  const maxDiscount = couponRule ? (couponRule.code === 'SKINTHEORY25' ? 50000 : 25000) : 0;
+  const discount = couponRule ? Math.min(rawDiscount, maxDiscount) : 0;
+  const total = Math.max(0, subtotal - discount);
+
   const recentOrders = useMemo(
     () => [...ordersQuery.data].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [ordersQuery.data]
   );
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNowTick(Date.now()), 20000);
-    return () => window.clearInterval(timer);
+    const t = window.setInterval(() => setNowTick(Date.now()), 20000);
+    return () => window.clearInterval(t);
   }, []);
 
-  const getTrackingStep = (createdAtISO: string, status: string) => {
-    if (status === 'cancelled' || status === 'failed') {
-      return 0;
-    }
-    const elapsedMinutes = Math.max(0, Math.floor((nowTick - new Date(createdAtISO).getTime()) / 60000));
-    if (elapsedMinutes < 3) return 0;
-    if (elapsedMinutes < 8) return 1;
-    if (elapsedMinutes < 16) return 2;
+  const getStep = (iso: string, status: string) => {
+    if (status === 'cancelled' || status === 'failed') return 0;
+    const mins = Math.max(0, Math.floor((nowTick - new Date(iso).getTime()) / 60000));
+    if (mins < 3) return 0;
+    if (mins < 8) return 1;
+    if (mins < 16) return 2;
     return 3;
   };
 
   const applyCoupon = () => {
-    const normalized = couponInput.trim().toUpperCase();
-    if (!normalized) {
-      setAppliedCouponCode(null);
-      setCheckoutMessage({ type: 'error', text: 'Enter a coupon code.' });
-      return;
-    }
-    const isValid = COUPONS.some((coupon) => coupon.code === normalized);
-    if (!isValid) {
-      setAppliedCouponCode(null);
-      setCheckoutMessage({ type: 'error', text: 'Invalid coupon code.' });
-      return;
-    }
-    setAppliedCouponCode(normalized);
-    setCheckoutMessage({ type: 'success', text: `Coupon applied: ${normalized}` });
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    if (!COUPONS.some((c) => c.code === code)) { toast.error('Invalid code'); return; }
+    setAppliedCouponCode(code);
+    toast.success(`Coupon ${code} applied`);
   };
 
   const handleCheckout = async () => {
-    if (!user || !items.length) {
-      return;
-    }
-
+    if (!user || !items.length) return;
     try {
-      setCheckoutMessage(null);
-      await mutateAsync({
-        clinicId,
-        patientUid: user.id,
-        items,
-        couponCode: appliedCouponCode ?? undefined
-      });
+      await mutateAsync({ clinicId, patientUid: user.id, items, couponCode: appliedCouponCode ?? undefined });
       clearCart();
       setAppliedCouponCode(null);
       setCouponInput('');
-      setCheckoutMessage({ type: 'success', text: 'Order placed successfully.' });
-    } catch (error) {
-      const message =
-        typeof error === 'object' && error !== null && 'message' in error
-          ? String((error as { message: unknown }).message)
-          : 'Unable to place order.';
-      setCheckoutMessage({ type: 'error', text: `Order failed: ${message}` });
-    }
+      toast.success('Order placed successfully');
+      setActiveTab('history');
+    } catch { toast.error('Order failed'); }
   };
 
-  const renderTrackingPanel = () => (
-    <Card className="p-4 sm:p-5">
-      <h3 className="text-lg font-bold text-slate-800">Order Tracking</h3>
-      {!recentOrders.length ? (
-        <div className="mt-4">
-          <EmptyState title="No Orders Yet" subtitle="Your placed orders and tracking updates will appear here." />
-        </div>
-      ) : (
-        <div className="mt-4 space-y-3">
-          {recentOrders.map((order) => {
-            const step = getTrackingStep(order.createdAt, order.status);
-            const steps = [
-              { label: 'Placed', icon: Clock3 },
-              { label: 'Packed', icon: PackageCheck },
-              { label: 'Shipped', icon: Truck },
-              { label: 'Delivered', icon: CheckCircle2 }
-            ];
-            return (
-              <div key={order.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-slate-800">Order {order.id.slice(0, 8)}...</p>
-                  <span className="rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-semibold text-teal-700">
-                    {order.status}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-slate-500">{formatDateLabel(order.createdAt)} | {order.items.length} items</p>
-                <p className="text-xs text-slate-600">Total: {formatMoney(order.totalCents)}</p>
+  const handleReorder = (order: any) => {
+    order.items.forEach((item: any) => {
+      addProduct({ id: item.productId, name: item.name, sku: '', priceCents: item.unitPriceCents, stock: 99, clinicId, isActive: true, description: '', imageUrl: '', createdAt: '', updatedAt: '' }, item.quantity);
+    });
+    toast.success("Items added to cart");
+    setActiveTab('checkout');
+  };
 
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {steps.map((s, idx) => (
-                    <div key={`${order.id}-${s.label}`} className="flex flex-col items-center gap-1">
-                      <div
-                        className={`inline-flex h-8 w-8 items-center justify-center rounded-full border transition ${
-                          idx <= step ? 'border-teal-600 bg-teal-600 text-white' : 'border-slate-300 bg-white text-slate-500'
-                        } ${idx === step ? 'animate-pulse' : ''}`}
-                      >
-                        <s.icon size={14} />
-                      </div>
-                      <p className="text-[10px] font-semibold text-slate-600">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </Card>
-  );
+  const steps = [
+    { label: 'Placed', icon: Clock3 },
+    { label: 'Packed', icon: PackageCheck },
+    { label: 'Shipped', icon: Truck },
+    { label: 'Delivered', icon: CheckCircle2 }
+  ];
 
   return (
-    <div className="space-y-4">
-      <Card className="border-teal-100 bg-gradient-to-r from-white to-teal-50 p-4 sm:p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-teal-700">Order Review</p>
-        <h2 className="mt-1 text-2xl font-bold text-slate-900">
-          {showCheckout ? (showTracking ? 'Checkout & Tracking' : 'Cart Checkout') : 'Order History & Tracking'}
-        </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          {showCheckout
-            ? showTracking
-              ? 'Place new orders and monitor live order progress.'
-              : 'Review cart items and place your order.'
-            : 'View placed orders and real-time tracking updates.'}
-        </p>
-      </Card>
-      {showTracking && !showCheckout ? renderTrackingPanel() : null}
+    <div className="animate-in fade-in duration-300">
+      <div className="mb-8">
+        <h2 className="font-['Playfair_Display'] text-3xl font-bold tracking-tight text-[#2C2420]">Orders</h2>
+        <p className="mt-1 text-[13px] text-[#B5A99A]">Track orders and manage checkout</p>
+      </div>
 
-      {showCheckout && checkoutMessage ? (
-        <div
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            checkoutMessage.type === 'success'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-rose-200 bg-rose-50 text-rose-700'
-          }`}
-        >
-          {checkoutMessage.text}
+      {/* Tabs */}
+      {showCheckout && showHistory && (
+        <div className="mb-8 flex gap-1 border-b border-[#E8E2DC]">
+          {[
+            { id: 'history' as const, label: 'Order History' },
+            { id: 'checkout' as const, label: `Checkout${items.length ? ` (${items.length})` : ''}` }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-4 pb-3 pt-1 text-[13px] font-medium transition-colors ${
+                activeTab === tab.id ? 'text-[#1A1A1A]' : 'text-[#B5A99A] hover:text-[#8A6F5F]'
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && <span className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-[#8A6F5F]" />}
+            </button>
+          ))}
         </div>
-      ) : null}
+      )}
 
-      {showCheckout ? (
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        {showTracking ? renderTrackingPanel() : null}
-
-        {!items.length ? (
-          <Card className="h-fit p-4 sm:p-5">
-            <EmptyState title="Your Cart Is Empty" subtitle="Add products from the catalog to continue checkout." />
-          </Card>
-        ) : (
-          <div className={`${showTracking ? 'grid gap-4 lg:col-span-2 lg:grid-cols-[1fr_320px]' : 'grid gap-4 lg:grid-cols-[1fr_320px]'}`}>
-          <Card className="p-4 sm:p-5">
-            <h3 className="text-lg font-bold text-slate-800">Cart Items</h3>
-            <div className="mt-4 space-y-3">
-              {items.map((item) => (
-                <div key={item.productId} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-semibold text-slate-800">{item.name}</p>
-                    <p className="text-slate-500">Qty {item.quantity}</p>
+      {/* History Tab */}
+      {activeTab === 'history' && (
+        <div className="space-y-3">
+          {!recentOrders.length ? (
+            <div className="py-12"><EmptyState title="No orders yet" subtitle="Your order history will appear here." /></div>
+          ) : (
+            recentOrders.map((order) => {
+              const step = getStep(order.createdAt, order.status);
+              return (
+                <div key={order.id} className="rounded-xl border border-[#E8E2DC] bg-white p-5 transition-colors hover:border-[#D4C8BC]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-semibold text-[#1A1A1A]">Order #{order.id.slice(-6).toUpperCase()}</p>
+                      <div className="mt-0.5 flex items-center gap-3 text-[12px] text-[#B5A99A]">
+                        <span className="flex items-center gap-1"><Calendar size={12} /> {formatDateLabel(order.createdAt)}</span>
+                        <span>{order.items.length} items</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-[#1A1A1A]">{formatMoney(order.totalCents)}</span>
+                      <span className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${
+                        order.status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-[#F5F0EB] text-[#8A6F5F]'
+                      }`}>{order.status}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between gap-3 sm:justify-end">
-                    <p className="font-semibold text-teal-700">{formatMoney(item.unitPriceCents * item.quantity)}</p>
-                    <Button variant="ghost" onClick={() => removeProduct(item.productId)}>
-                      Remove
-                    </Button>
+
+                  {/* Horizontal Tracking */}
+                  <div className="flex items-center gap-2 mb-4">
+                    {steps.map((s, idx) => (
+                      <div key={s.label} className="flex items-center gap-2 flex-1">
+                        <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${
+                          idx <= step ? 'bg-[#8A6F5F] text-white' : 'bg-[#F5F0EB] text-[#D4C8BC]'
+                        }`}>
+                          <s.icon size={13} />
+                        </div>
+                        <span className={`text-[11px] font-medium ${idx <= step ? 'text-[#1A1A1A]' : 'text-[#D4C8BC]'}`}>{s.label}</span>
+                        {idx < steps.length - 1 && <div className={`flex-1 h-px ${idx < step ? 'bg-[#8A6F5F]' : 'bg-[#E8E2DC]'}`} />}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => handleReorder(order)}
+                    className="text-[12px] font-medium text-[#8A6F5F] hover:underline"
+                  >
+                    Reorder
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Checkout Tab */}
+      {activeTab === 'checkout' && (
+        <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+          <div className="space-y-3">
+            {!items.length ? (
+              <div className="py-12"><EmptyState title="Cart is empty" subtitle="Add products to checkout." /></div>
+            ) : (
+              items.map((item) => (
+                <div key={item.productId} className="flex items-center justify-between rounded-xl border border-[#E8E2DC] bg-white p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-[#F5F0EB] flex items-center justify-center text-[#8A6F5F]/20"><Box size={20} /></div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#1A1A1A]">{item.name}</p>
+                      <p className="text-[12px] text-[#B5A99A]">Qty: {item.quantity}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold text-[#1A1A1A]">{formatMoney(item.unitPriceCents * item.quantity)}</span>
+                    <button onClick={() => removeProduct(item.productId)} className="text-[#B5A99A] hover:text-red-500"><X size={16} /></button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="h-fit p-4 sm:p-5">
-            <h3 className="text-lg font-bold text-slate-800">Summary</h3>
-            <div className="mt-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Apply Coupon</p>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Input
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  placeholder="Enter coupon code"
-                  className="uppercase"
-                />
-                <Button variant="outline" onClick={applyCoupon} className="sm:min-w-[92px]">
-                  Apply
-                </Button>
-              </div>
-              <p className="text-xs text-slate-500">{COUPONS.map((coupon) => `${coupon.code} (${coupon.label})`).join(' | ')}</p>
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Subtotal</p>
-              <p className="text-lg font-bold text-slate-800">{formatMoney(subtotal)}</p>
-            </div>
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Discount</p>
-              <p className="text-sm font-semibold text-emerald-700">- {formatMoney(discountCents)}</p>
-            </div>
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-sm text-slate-600">Total</p>
-              <p className="text-lg font-bold text-slate-900">{formatMoney(total)}</p>
-            </div>
-            <Button className="mt-5 w-full" onClick={handleCheckout} disabled={!user || !items.length || isLoading}>
-              {isLoading ? 'Processing...' : 'Place Order'}
-            </Button>
-          </Card>
+              ))
+            )}
           </div>
-        )}
-      </div>
-      ) : null}
+
+          <div className="lg:sticky lg:top-24">
+            <div className="rounded-xl border border-[#E8E2DC] bg-white p-6">
+              <h3 className="text-base font-semibold text-[#1A1A1A] mb-5">Summary</h3>
+              <div className="flex gap-2 mb-4">
+                <Input value={couponInput} onChange={(e) => setCouponInput(e.target.value)} placeholder="Coupon code" className="h-9 rounded-lg border-[#E8E2DC] text-sm uppercase flex-1" />
+                <Button variant="outline" onClick={applyCoupon} className="h-9 rounded-lg border-[#E8E2DC] text-[12px] px-3 text-[#8A6F5F]">Apply</Button>
+              </div>
+              <div className="space-y-2 text-[13px]">
+                <div className="flex justify-between"><span className="text-[#B5A99A]">Subtotal</span><span className="text-[#1A1A1A]">{formatMoney(subtotal)}</span></div>
+                <div className="flex justify-between"><span className="text-[#B5A99A]">Discount</span><span className="text-emerald-600">−{formatMoney(discount)}</span></div>
+                <div className="border-t border-[#E8E2DC] pt-2 flex justify-between"><span className="font-semibold text-[#1A1A1A]">Total</span><span className="text-lg font-bold text-[#1A1A1A]">{formatMoney(total)}</span></div>
+              </div>
+              <Button onClick={handleCheckout} disabled={!items.length || isLoading} className="mt-5 h-10 w-full rounded-lg bg-[#1A1A1A] text-[13px] font-medium text-white hover:bg-[#8A6F5F]">
+                {isLoading ? 'Processing...' : 'Place Order'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

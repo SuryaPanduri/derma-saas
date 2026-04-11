@@ -1,234 +1,158 @@
 import { useState } from 'react';
-import { Heart, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Plus, Eye, X, ShieldCheck, Zap } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useProducts } from '@/hooks';
 import { useCartStore, useWishlistStore } from '@/store';
+import { useToast } from '@/contexts/ToastContext';
 import type { ProductDTO } from '@/types';
 import { formatMoney } from '@/utils/moneyUtils';
 
 export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
   const { data, isLoading } = useProducts(clinicId);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductDTO | null>(null);
+  const toast = useToast();
+
   const addProduct = useCartStore((state) => state.addProduct);
   const toggleWishlist = useWishlistStore((state) => state.toggleProduct);
   const isWishlisted = useWishlistStore((state) => state.isWishlisted);
-  const [selectedProduct, setSelectedProduct] = useState<ProductDTO | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const [heartAnimatingId, setHeartAnimatingId] = useState<string | null>(null);
-
-  const openQuantityPopup = (product: ProductDTO) => {
-    setSelectedProduct(product);
-    setQuantity(1);
-  };
-
-  const closeQuantityPopup = () => {
-    setSelectedProduct(null);
-    setQuantity(1);
-  };
-
-  const handleConfirmAdd = () => {
-    if (!selectedProduct) {
-      return;
-    }
-    addProduct(selectedProduct, quantity);
-    closeQuantityPopup();
-  };
-
-  const handleWishlistToggle = (product: ProductDTO) => {
-    toggleWishlist(product);
-    setHeartAnimatingId(product.id);
-    window.setTimeout(() => setHeartAnimatingId((current) => (current === product.id ? null : current)), 450);
-  };
 
   if (isLoading) {
     return (
-      <div className="grid gap-10 sm:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, idx) => (
-          <Skeleton key={idx} className="h-72 w-full rounded-2xl" />
-        ))}
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48 rounded-lg" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-xl" />)}
+        </div>
       </div>
     );
   }
 
-  if (!data.length) {
-    return <EmptyState title="No Products Found" subtitle="Inventory has not been configured yet." />;
-  }
+  if (!data?.length) return <EmptyState title="No Products" subtitle="Coming soon." />;
 
   return (
-    <div className="space-y-10 md:space-y-16">
-      <section className="relative overflow-hidden rounded-3xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#faf9f6]/56 via-[#faf9f6]/30 to-transparent" />
-        <div className="relative flex min-h-[38vh] items-center bg-[linear-gradient(120deg,#e6ddcf,#dbd2c5,#ece5da)] px-4 py-8 sm:min-h-[42vh] sm:px-6 sm:py-10 md:min-h-[48vh] md:px-12 md:py-14">
-          <div className="max-w-xl space-y-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3a4a3a] [text-shadow:0_1px_1px_rgba(255,255,255,0.35)]">
-              Skincare Collection
-            </p>
-            <h2 className="text-3xl font-semibold leading-tight tracking-[0.01em] text-[#2f3d2f] [text-shadow:0_1px_2px_rgba(255,255,255,0.3)] sm:text-4xl md:text-6xl">
-              Ritual-led skincare with clinical confidence.
-            </h2>
-            <p className="text-sm leading-relaxed text-[#465646] [text-shadow:0_1px_2px_rgba(255,255,255,0.25)] sm:text-base md:text-lg">
-              Discover dermatologist-guided essentials crafted for everyday calm, barrier support, and long-term skin health.
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="animate-in fade-in duration-300">
+      {/* Header */}
+      <div className="mb-8">
+        <h2 className="font-['Playfair_Display'] text-3xl font-bold tracking-tight text-[#2C2420]">Products</h2>
+        <p className="mt-1 text-[13px] text-[#B5A99A]">Professional skincare formulas</p>
+      </div>
 
-      <section className="space-y-6">
-        <div className="space-y-3 md:space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B6B6B]">Shop Products</p>
-          <h3 className="text-2xl font-semibold text-[#1E1E1E] sm:text-3xl">Featured Formulations</h3>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2 md:gap-8 xl:grid-cols-3">
-          {data.map((product) => (
-            <Card
-              key={product.id}
-              className="rounded-2xl border border-[#e6dfd3] bg-[#FAF8F4] p-6 shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-lg"
-            >
-              <div className="group relative mb-4 overflow-hidden rounded-xl bg-[#f1eadf] p-5">
-                <div className="inline-flex rounded-full border border-[#d9d1c1] bg-[#FAF8F4]/90 p-2 text-[#4E5D4A] transition-all duration-300 ease-in-out group-hover:scale-110">
-                  <ShoppingBag size={18} />
-                </div>
-                <button
-                  onClick={() => handleWishlistToggle(product)}
-                  className={`absolute bottom-3 right-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d9d1c1] bg-[#FAF8F4]/90 text-[#4E5D4A] transition-all duration-300 hover:scale-110 ${
-                    heartAnimatingId === product.id ? 'scale-125' : ''
-                  }`}
-                  aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
-                  title={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
-                >
-                  <Heart
-                    size={16}
-                    className={`transition-all duration-300 ${
-                      isWishlisted(product.id) ? 'fill-[#4E5D4A] text-[#4E5D4A]' : 'text-[#4E5D4A]'
-                    }`}
-                  />
-                </button>
-                <span className="absolute right-3 top-3 rounded-full bg-[#4E5D4A] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  Offer
+      {/* Product Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {data.map((product: ProductDTO) => (
+          <div key={product.id} className="group rounded-xl border border-[#E8E2DC] bg-white overflow-hidden transition-all hover:border-[#8A6F5F] hover:shadow-sm">
+            {/* Image Area */}
+            <div className="relative aspect-square bg-[#F5F0EB] flex items-center justify-center">
+              <ShoppingBag size={40} className="text-[#8A6F5F]/10" />
+              {product.stock < 5 && (
+                <span className="absolute top-3 left-3 rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-600 border border-red-100">
+                  Low Stock
                 </span>
-              </div>
-
-              <p className="text-xs uppercase tracking-[0.15em] text-[#6B6B6B]">{product.sku}</p>
-              <h4 className="mt-2 text-xl font-medium text-[#1E1E1E]">{product.name}</h4>
-              <p className="mt-2 min-h-12 text-sm leading-relaxed text-[#6B6B6B]">{product.description}</p>
-
-              <div className="mt-5 flex items-center justify-between">
-                <p className="text-sm font-medium text-[#6B6B6B]">{formatMoney(product.priceCents)}</p>
-                <p
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    product.stock <= 5 ? 'bg-[#4E5D4A]/15 text-[#4E5D4A]' : 'bg-[#ece4d8] text-[#6B6B6B]'
-                  }`}
+              )}
+              {/* Hover Controls */}
+              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/5 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  onClick={() => toggleWishlist(product)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1A1A1A] shadow-sm transition-colors hover:bg-[#8A6F5F] hover:text-white"
                 >
-                  Stock {product.stock}
-                </p>
+                  <Heart size={16} className={isWishlisted(product.id) ? 'fill-current text-[#8A6F5F]' : ''} />
+                </button>
+                <button
+                  onClick={() => setQuickViewProduct(product)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1A1A1A] shadow-sm transition-colors hover:bg-[#8A6F5F] hover:text-white"
+                >
+                  <Eye size={16} />
+                </button>
+                <button
+                  onClick={() => { addProduct(product, 1); toast.success(`${product.name} added to cart`); }}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A1A1A] text-white shadow-sm transition-colors hover:bg-[#8A6F5F]"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Info */}
+            <div className="p-4">
+              <p className="text-[11px] text-[#B5A99A] mb-1">{product.sku}</p>
+              <h4 className="text-sm font-semibold text-[#1A1A1A] line-clamp-1 group-hover:text-[#8A6F5F] transition-colors">
+                {product.name}
+              </h4>
+              <p className="mt-2 text-sm font-bold text-[#1A1A1A]">{formatMoney(product.priceCents)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setQuickViewProduct(null)} />
+          <div className="relative z-10 w-full max-w-2xl rounded-xl border border-[#E8E2DC] bg-white shadow-xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="flex flex-col md:flex-row">
+              {/* Image */}
+              <div className="w-full md:w-1/2 bg-[#F5F0EB] p-12 flex items-center justify-center">
+                <ShoppingBag size={80} className="text-[#8A6F5F]/10" />
               </div>
 
-              <Button
-                className="mt-5 w-full border border-[#4E5D4A] bg-[#4E5D4A] text-[#FAF8F4] transition-all duration-300 ease-in-out hover:opacity-90"
-                onClick={() => openQuantityPopup(product)}
-                disabled={product.stock <= 0}
-              >
-                Add to Cart
-              </Button>
-            </Card>
-          ))}
-        </div>
-      </section>
+              {/* Content */}
+              <div className="w-full md:w-1/2 p-8 flex flex-col">
+                <button
+                  onClick={() => setQuickViewProduct(null)}
+                  className="absolute right-4 top-4 p-2 text-[#B5A99A] hover:text-[#1A1A1A] rounded-lg hover:bg-[#F5F0EB] transition-colors"
+                >
+                  <X size={18} />
+                </button>
 
-      <section className="rounded-3xl bg-[#4E5D4A] px-4 py-10 text-white sm:px-6 md:px-12 md:py-16">
-        <div className="mx-auto max-w-3xl space-y-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80">Newsletter</p>
-          <h3 className="text-3xl font-semibold md:text-4xl">Join our calm skin journal</h3>
-          <p className="text-white/85">Get treatment insights, ingredient notes, and curated routines for healthier skin.</p>
-          <div className="flex flex-col gap-3 md:flex-row">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              className="h-12 rounded-full border-white/30 bg-white/95 px-5 text-[#1E1E1E] focus:ring-white/40"
-            />
-            <Button className="h-12 rounded-full bg-white px-8 text-[#4E5D4A] transition-all duration-300 ease-in-out hover:bg-[#4E5D4A] hover:text-white">
-              Subscribe
-            </Button>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#8A6F5F]">Professional Grade</p>
+                <h3 className="font-['Playfair_Display'] mt-2 text-2xl font-bold text-[#2C2420]">{quickViewProduct.name}</h3>
+                <p className="mt-3 text-[13px] leading-relaxed text-[#B5A99A]">
+                  Formulated to restore the skin's natural barrier while delivering intense hydration with clinically tested active ingredients.
+                </p>
+
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 rounded-lg bg-[#F5F0EB] p-3">
+                    <ShieldCheck size={16} className="text-[#8A6F5F]" />
+                    <span className="text-[12px] font-medium text-[#1A1A1A]">Derm tested</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg bg-[#F5F0EB] p-3">
+                    <Zap size={16} className="text-[#8A6F5F]" />
+                    <span className="text-[12px] font-medium text-[#1A1A1A]">Fast absorb</span>
+                  </div>
+                </div>
+
+                <div className="mt-auto pt-6">
+                  <p className="text-2xl font-bold text-[#1A1A1A] mb-4">{formatMoney(quickViewProduct.priceCents)}</p>
+                  <div className="flex gap-3">
+                    <Button
+                      className="flex-1 h-10 rounded-lg bg-[#1A1A1A] text-[13px] font-medium text-white hover:bg-[#8A6F5F] transition-colors"
+                      onClick={() => {
+                        addProduct(quickViewProduct, 1);
+                        toast.success(`${quickViewProduct.name} added to cart`);
+                        setQuickViewProduct(null);
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                    <button
+                      onClick={() => toggleWishlist(quickViewProduct)}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${
+                        isWishlisted(quickViewProduct.id)
+                          ? 'bg-[#8A6F5F] text-white border-[#8A6F5F]'
+                          : 'border-[#E8E2DC] text-[#8A6F5F] hover:border-[#8A6F5F]'
+                      }`}
+                    >
+                      <Heart size={18} className={isWishlisted(quickViewProduct.id) ? 'fill-current' : ''} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      <section className="space-y-6 pt-2 md:pt-4">
-        <div className="space-y-3 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B6B6B]">Instagram</p>
-          <h3 className="text-3xl font-semibold text-[#1E1E1E]">Follow Our Skin Stories</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6 md:gap-6">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="aspect-square rounded-xl bg-[linear-gradient(130deg,#d8cfbf,#ebe4d9)] transition-all duration-300 ease-in-out hover:scale-[1.03]"
-            />
-          ))}
-        </div>
-      </section>
-
-      {selectedProduct ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1E1E]/30 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-sm border-[#e6dfd3] bg-[#FAF8F4] p-5">
-            <h3 className="text-lg font-semibold text-[#1E1E1E]">Select Quantity</h3>
-            <p className="mt-1 text-sm text-[#6B6B6B]">{selectedProduct.name}</p>
-            <p className="mt-1 text-sm text-[#4E5D4A]">{formatMoney(selectedProduct.priceCents)} each</p>
-            <p className="mt-1 text-xs text-[#6B6B6B]">Available stock: {selectedProduct.stock}</p>
-
-            <div className="mt-4 flex items-center gap-2">
-              <Button
-                variant="outline"
-                className="h-10 w-10 border-[#d9d1c1] px-0 text-[#4E5D4A] hover:bg-[#4E5D4A]/10"
-                onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                disabled={quantity <= 1}
-              >
-                <Minus size={16} />
-              </Button>
-              <Input
-                type="number"
-                min={1}
-                max={selectedProduct.stock}
-                value={quantity}
-                onChange={(e) => {
-                  const next = Number(e.target.value);
-                  if (Number.isNaN(next)) {
-                    setQuantity(1);
-                    return;
-                  }
-                  setQuantity(Math.max(1, Math.min(selectedProduct.stock, Math.floor(next))));
-                }}
-                className="border-[#d9d1c1] bg-white text-center text-[#1E1E1E]"
-              />
-              <Button
-                variant="outline"
-                className="h-10 w-10 border-[#d9d1c1] px-0 text-[#4E5D4A] hover:bg-[#4E5D4A]/10"
-                onClick={() => setQuantity((prev) => Math.min(selectedProduct.stock, prev + 1))}
-                disabled={quantity >= selectedProduct.stock}
-              >
-                <Plus size={16} />
-              </Button>
-            </div>
-
-            <p className="mt-3 text-sm text-[#6B6B6B]">
-              Total: <span className="font-semibold text-[#4E5D4A]">{formatMoney(selectedProduct.priceCents * quantity)}</span>
-            </p>
-
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <Button variant="ghost" className="text-[#6B6B6B] hover:bg-[#4E5D4A]/10" onClick={closeQuantityPopup}>
-                Cancel
-              </Button>
-              <Button className="bg-[#4E5D4A] text-[#FAF8F4] hover:opacity-90" onClick={handleConfirmAdd}>
-                Add to Cart
-              </Button>
-            </div>
-          </Card>
-        </div>
-      ) : null}
+      )}
     </div>
   );
 };
