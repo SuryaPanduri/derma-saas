@@ -92,7 +92,7 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#ECE3D8] font-['Assistant'] text-[#191919] selection:bg-[#8A6F5F] selection:text-white">
+    <div className="min-h-screen bg-[#FFF6F5] font-['Assistant'] text-[#191919] selection:bg-[#8A6F5F] selection:text-white">
       {/* Navigation */}
       <nav className={`fixed top-0 z-50 w-full transition-all duration-500 ${
         scrolled ? 'bg-white/80 py-3 shadow-sm backdrop-blur-xl' : 'bg-transparent py-6'
@@ -132,19 +132,19 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
       </nav>
 
       {/* Hero Section */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20">
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-[#FFF6F5] via-[#F4CAC6]/20 to-[#FFF6F5] pt-20">
         <div className="absolute inset-0 z-0">
           <img 
             src="/hero-skin-clinic.svg" 
             className="h-full w-full object-cover opacity-20 blur-[1px]" 
             alt="Clinic Interior" 
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#ECE3D8]/50 to-[#ECE3D8]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FFF6F5]/50 to-[#FFF6F5]" />
         </div>
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <div className="mb-6 flex justify-center opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <span className="rounded-full border border-[#8A6F5F]/30 bg-[#8A6F5F]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#8A6F5F]">
+            <span className="rounded-full border border-[#D0A4A3]/30 bg-[#F4CAC6]/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#8A6F5F]">
               Scientific Dermatology • Clinical Aesthetics
             </span>
           </div>
@@ -176,7 +176,7 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
 
         {/* Floating Elements */}
         <div className="absolute bottom-10 left-10 hidden xl:block opacity-0 animate-in fade-in duration-1000 delay-1000">
-          <div className="flex items-center gap-4 rounded-2xl bg-white/40 p-4 shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-4 rounded-2xl bg-white/60 p-4 shadow-sm backdrop-blur-md border border-[#F4CAC6]/30">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#8A6F5F] text-white">
               <Stethoscope size={24} />
             </div>
@@ -222,7 +222,7 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
             {TREATMENTS.map((t, i) => (
               <div 
                 key={t.id} 
-                className="group relative overflow-hidden rounded-[32px] bg-[#ECE3D8]/30 p-8 transition-all hover:bg-[#ECE3D8]"
+                className="group relative overflow-hidden rounded-[32px] bg-[#F4CAC6]/15 p-8 transition-all hover:bg-[#F4CAC6]/30"
               >
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#8A6F5F] shadow-sm transition-transform group-hover:scale-110">
                   <t.icon size={28} />
@@ -241,16 +241,17 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
       </section>
 
       {/* Doctor Spotlight */}
-      <section id="about" className="overflow-hidden bg-[#ECE3D8] py-24 md:py-32">
+      <section id="about" className="overflow-hidden bg-gradient-to-br from-[#FFF6F5] to-[#F4CAC6]/30 py-24 md:py-32">
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col items-center gap-16 lg:flex-row">
             <div className="relative w-full max-w-md lg:w-1/2">
-              <div className="relative z-10 overflow-hidden rounded-[40px] shadow-2xl">
+              <div className="relative z-10 overflow-hidden rounded-[40px] shadow-2xl group cursor-pointer">
                 <img 
                   src="/Dr.-Guruvani-Ravu-min.webp" 
                   alt="Dr. Guruvani Ravu" 
-                  className="w-full grayscale transition-all duration-700 hover:grayscale-0"
+                  className="w-full transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2C2420]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
               <div className="absolute -bottom-10 -right-10 -z-0 h-64 w-64 rounded-full bg-[#8A6F5F]/10 blur-3xl" />
               <div className="absolute -left-10 -top-10 -z-0 h-40 w-40 rounded-full bg-white/40 blur-2xl" />
@@ -275,7 +276,7 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
                 </p>
                 <div className="flex flex-wrap gap-4">
                   {['MD Dermatology', 'Aesthetic Specialist', '10+ Years Experience'].map((spec) => (
-                    <div key={spec} className="rounded-full border border-[#8A6F5F]/20 bg-white/50 px-4 py-2 text-sm font-semibold text-[#8A6F5F]">
+                    <div key={spec} className="rounded-full border border-[#D0A4A3]/20 bg-white/60 px-4 py-2 text-sm font-semibold text-[#8A6F5F]">
                       {spec}
                     </div>
                   ))}
