@@ -23,13 +23,21 @@ import { OrdersView } from './OrdersView';
 
 type ProfileSection = 'menu' | 'profile_edit' | 'bookings' | 'orders';
 
-export const ProfileView = ({ clinicId, onSignOut }: { clinicId: string; onSignOut: () => void }) => {
+export const ProfileView = ({ 
+  clinicId, 
+  onSignOut,
+  initialSection = 'menu'
+}: { 
+  clinicId: string; 
+  onSignOut: () => void;
+  initialSection?: ProfileSection;
+}) => {
   const user = useAuthStore((state) => state.user);
   const bookingsQuery = useBookings(user?.id ?? '');
   const { mutateAsync, isLoading } = useUpdateProfile();
   const toast = useToast();
   
-  const [activeSection, setActiveSection] = useState<ProfileSection>('menu');
+  const [activeSection, setActiveSection] = useState<ProfileSection>(initialSection);
   const [fullName, setFullName] = useState((user as any)?.fullName || '');
   const [phone, setPhone] = useState((user as any)?.phone || '');
 

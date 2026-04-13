@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Clock, Stethoscope } from 'lucide-react';
+import { Clock, Stethoscope, Bell, Heart } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { Button } from '@/components/ui/Button';
@@ -10,7 +10,17 @@ import type { ServiceDTO } from '@/types';
 import { formatMoney } from '@/utils/moneyUtils';
 import { BookingModal } from './BookingModal';
 
-export const ServiceCatalogView = ({ clinicId }: { clinicId: string }) => {
+export const ServiceCatalogView = ({ 
+  clinicId,
+  onNavigate,
+  wishlistCount = 0,
+  notificationsCount = 0
+}: { 
+  clinicId: string;
+  onNavigate?: (tab: string) => void;
+  wishlistCount?: number;
+  notificationsCount?: number;
+}) => {
   const { data, isLoading, error } = useServices(clinicId);
   const [selectedService, setSelectedService] = useState<ServiceDTO | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -44,15 +54,9 @@ export const ServiceCatalogView = ({ clinicId }: { clinicId: string }) => {
 
   return (
     <div className="animate-in fade-in duration-300">
-      {/* Page Header */}
-      <div className="mb-8">
-        <h2 className="font-['Playfair_Display'] text-3xl font-bold tracking-tight text-[#2C2420]">Treatments</h2>
-        <p className="mt-1 text-[13px] text-[#B5A99A]">Professional clinical protocols by our specialists</p>
-      </div>
-
       {/* Category Filters */}
       <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
-        {categories.map((cat) => (
+        {categories.map((cat: string) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -69,7 +73,7 @@ export const ServiceCatalogView = ({ clinicId }: { clinicId: string }) => {
 
       {/* Services Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredServices.map((service) => (
+        {filteredServices.map((service: ServiceDTO) => (
           <div
             key={service.id}
             className="group rounded-xl border border-[#E8E2DC] bg-white p-6 transition-all hover:border-[#8A6F5F] hover:shadow-sm"

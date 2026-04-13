@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { useCartStore } from '@/store';
+import { useCartStore, VALID_COUPONS } from '@/store';
 import { useToast } from '@/contexts/ToastContext';
 import { formatMoney } from '@/utils/moneyUtils';
 import { Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck, Ticket, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 
 export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => void }) => {
-  const { items, removeProduct, addProduct } = useCartStore();
+  const { items, removeProduct, addProduct, appliedCoupon, setAppliedCoupon } = useCartStore();
   const toast = useToast();
-  const [couponInput, setCouponInput] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponInput, setCouponInput] = useState(appliedCoupon || '');
   const [isApplying, setIsApplying] = useState(false);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  const discountPercent = appliedCoupon ? (VALID_COUPONS[appliedCoupon as keyof typeof VALID_COUPONS] || 0) : 0;
   const discountAmount = Math.round(subtotal * (discountPercent / 100));
   const total = subtotal - discountAmount;
 
@@ -23,16 +24,22 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
     if (!couponInput.trim()) return;
     
     setIsApplying(true);
-    // Simulate API delay
     setTimeout(() => {
-      if (couponInput.toUpperCase() === 'FIRSTGLOW') {
-        setDiscountPercent(10);
-        toast.success("Coupon 'FIRSTGLOW' applied! 10% discount added.");
+      const code = couponInput.toUpperCase();
+      if (code in VALID_COUPONS) {
+        setAppliedCoupon(code);
+        toast.success(`Coupon '${code}' applied successfully!`);
       } else {
         toast.error("Invalid coupon code. Please try again.");
       }
       setIsApplying(false);
     }, 600);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    toast.info("Coupon removed.");
   };
 
   if (!items.length) {
@@ -107,82 +114,81 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
           ))}
         </div>
 
-        {/* Summary */}
-        <div className="lg:sticky lg:top-24 mt-4 lg:mt-0 space-y-4">
-          {/* Coupon Section */}
-          <div className="rounded-2xl border border-[#E8E2DC] bg-white p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <Ticket size={16} className="text-[#8A6F5F]" />
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-[#1A1A1A]">Promo Code</h3>
-            </div>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  placeholder="Enter code"
-                  disabled={discountPercent > 0}
-                  className="h-11 border-[#E8E2DC] bg-[#FAF8F5] text-[13px] uppercase tracking-wider"
-                />
-                {discountPercent > 0 && (
-                  <CheckCircle2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500" />
-                )}
-              </div>
-              <Button
-                onClick={handleApplyCoupon}
-                disabled={!couponInput || isApplying || discountPercent > 0}
-                className={`h-11 px-6 text-[12px] font-bold transition-all ${
-                  discountPercent > 0 
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                    : 'bg-[#1A1A1A] text-white hover:bg-[#8A6F5F]'
-                }`}
-              >
-                {isApplying ? '...' : discountPercent > 0 ? 'Applied' : 'Apply'}
-              </Button>
-            </div>
-            {discountPercent > 0 && (
-              <p className="mt-2 text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-                Congrats! You've saved {formatMoney(discountAmount)}
-              </p>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-[#E8E2DC] bg-white p-5 shadow-sm">
-            <h3 className="text-[13px] font-black uppercase tracking-widest text-[#8A6F5F] border-b border-[#F5F0EA] pb-3 mb-4">Order Summary</h3>
+        {/* Unified Summary & Coupon Section */}
+        <div className="lg:sticky lg:top-24 mt-4 lg:mt-0">
+          <div className="rounded-2xl border border-[#E8E2DC] bg-white p-6 shadow-sm">
+            <h3 className="text-[13px] font-black uppercase tracking-widest text-[#8A6F5F] border-b border-[#F5F0EA] pb-3 mb-6">Order Checkout</h3>
+            
             <div className="space-y-4">
               <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
-                <span className="text-[13px] text-[#B5A99A] font-medium tracking-wide">Subtotal</span>
-                <span className="text-[14px] font-bold text-[#1A1A1A] min-w-[80px] text-right">{formatMoney(subtotal)}</span>
+                <span className="text-[13px] text-[#B5A99A] font-medium tracking-wide">Basket Subtotal</span>
+                <span className="text-[14px] font-bold text-[#1A1A1A]">{formatMoney(subtotal)}</span>
               </div>
-              {discountPercent > 0 && (
-                <div className="grid grid-cols-[1fr_auto] gap-4 items-center text-emerald-600">
-                  <span className="text-[13px] font-medium tracking-wide italic">Discount (10%)</span>
-                  <span className="text-[14px] font-bold min-w-[80px] text-right">-{formatMoney(discountAmount)}</span>
-                </div>
-              )}
+
+              {/* Enhanced Coupon Input within Summary */}
+              <div className="py-2">
+                {!appliedCoupon ? (
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Ticket size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B5A99A]" />
+                      <Input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        placeholder="PROMO CODE"
+                        className="h-10 border-[#E8E2DC] bg-[#FAF8F5] pl-9 text-[11px] font-bold uppercase tracking-wider"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleApplyCoupon}
+                      disabled={!couponInput || isApplying}
+                      className="h-10 px-4 bg-[#2C2420] text-[10px] font-bold text-white hover:bg-[#1A1A1A] transition-all"
+                    >
+                      {isApplying ? '...' : 'APPLY'}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2 border border-emerald-100">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 size={16} className="text-emerald-500" />
+                      <div>
+                        <p className="text-[11px] font-bold text-emerald-800 uppercase tracking-tight">{appliedCoupon}</p>
+                        <p className="text-[9px] font-medium text-emerald-600">Saved {formatMoney(discountAmount)}</p>
+                      </div>
+                    </div>
+                    <button onClick={removeCoupon} className="p-1 text-emerald-400 hover:text-emerald-600">
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
-                <span className="text-[13px] text-[#B5A99A] font-medium tracking-wide">Shipping</span>
-                <span className="text-[14px] font-bold text-[#8A6F5F] min-w-[80px] text-right">Free</span>
+                <span className="text-[13px] text-[#B5A99A] font-medium tracking-wide">Delivery Fees</span>
+                <span className="text-[13px] font-bold text-emerald-600 uppercase tracking-tight">Complementary</span>
               </div>
+
               <div className="mt-4 pt-4 border-t border-[#E8E2DC] grid grid-cols-[1fr_auto] gap-4 items-center">
-                <span className="text-[14px] font-bold text-[#1A1A1A] uppercase tracking-wider">Total</span>
-                <span className="text-xl font-black text-[#1A1A1A] min-w-[100px] text-right">{formatMoney(total)}</span>
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-black text-[#1A1A1A] uppercase tracking-wider">Final Settlement</span>
+                  <p className="text-[10px] text-[#B5A99A]">Tax Included</p>
+                </div>
+                <span className="text-2xl font-black text-[#1A1A1A]">{formatMoney(total)}</span>
               </div>
             </div>
 
             <Button
-              className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#2C2420] text-[15px] font-bold text-white shadow-lg shadow-[#2C2420]/10 hover:bg-[#8A6F5F] transition-all active:scale-[0.98]"
+              className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#CA8A04] text-[15px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-[#CA8A04]/20 hover:bg-[#B87D03] transition-all active:scale-[0.98]"
               onClick={() => {
-                toast.success("Proceeding to checkout");
+                toast.success("Proceeding to secure checkout");
                 onProceedToCheckout();
               }}
             >
-              Checkout <ArrowRight size={18} />
+              Confirm & Pay <ArrowRight size={18} />
             </Button>
             
-            <div className="mt-5 flex items-center justify-center gap-2 text-[#B5A99A]">
+            <div className="mt-5 flex items-center justify-center gap-2 text-[#B5A99A] opacity-60">
               <ShieldCheck size={16} />
-              <span className="text-[12px] font-bold tracking-tight uppercase">Secure SSL Checkout</span>
+              <span className="text-[10px] font-bold tracking-widest uppercase">Vault Secure Encryption</span>
             </div>
           </div>
         </div>

@@ -8,13 +8,22 @@ interface AddProductResult {
 
 interface CartState {
   items: OrderItemDTO[];
+  appliedCoupon: string | null;
   addProduct: (product: ProductDTO, quantity?: number) => AddProductResult;
   removeProduct: (productId: string) => void;
   clearCart: () => void;
+  setAppliedCoupon: (code: string | null) => void;
 }
+
+export const VALID_COUPONS = {
+  'FIRSTGLOW': 10,
+  'GLOW10': 10,
+  'SKINTHEORY25': 25
+};
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
+  appliedCoupon: null,
   addProduct: (product, quantity = 1): AddProductResult => {
     if (product.stock <= 0) {
       return { success: false, error: 'Product is currently out of stock.' };
@@ -74,5 +83,6 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeProduct: (productId) => {
     set({ items: get().items.filter((item) => item.productId !== productId) });
   },
-  clearCart: () => set({ items: [] })
+  clearCart: () => set({ items: [], appliedCoupon: null }),
+  setAppliedCoupon: (code) => set({ appliedCoupon: code })
 }));

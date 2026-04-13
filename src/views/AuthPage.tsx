@@ -191,94 +191,99 @@ export const AuthPage = ({
             </div>
 
             {/* Form Fields */}
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Email</label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA]" />
-                  <Input
-                    type="email"
-                    placeholder="name@example.com"
-                    className="h-12 rounded-xl border-[#E8E2DC] bg-white pl-10 text-[14px] text-[#2C2420] placeholder:text-[#C4B8AA] focus:border-[#8A6F5F] focus:ring-1 focus:ring-[#8A6F5F]/20"
-                    value={email}
-                    onChange={(e) => onEmailChange(e.target.value)}
-                  />
+            <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Email</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA]" />
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder="name@example.com"
+                      className="h-12 rounded-xl border-[#E8E2DC] bg-white pl-10 text-[14px] text-[#2C2420] placeholder:text-[#C4B8AA] focus:border-[#8A6F5F] focus:ring-1 focus:ring-[#8A6F5F]/20"
+                      value={email}
+                      onChange={(e) => onEmailChange(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Password</label>
-                <div className="relative">
-                  <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA]" />
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    className="h-12 rounded-xl border-[#E8E2DC] bg-white pl-10 pr-11 text-[14px] text-[#2C2420] placeholder:text-lg placeholder:tracking-widest focus:border-[#8A6F5F] focus:ring-1 focus:ring-[#8A6F5F]/20"
-                    value={password}
-                    onChange={(e) => onPasswordChange(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA] transition-colors hover:text-[#8A6F5F]"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              {authMode === 'signup' && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Confirm Password</label>
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Password</label>
                   <div className="relative">
                     <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA]" />
                     <Input
-                      type={showConfirmPassword ? 'text' : 'password'}
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete={authMode === 'signin' ? 'current-password' : 'new-password'}
                       placeholder="••••••••"
                       className="h-12 rounded-xl border-[#E8E2DC] bg-white pl-10 pr-11 text-[14px] text-[#2C2420] placeholder:text-lg placeholder:tracking-widest focus:border-[#8A6F5F] focus:ring-1 focus:ring-[#8A6F5F]/20"
-                      value={confirmPassword}
-                      onChange={(e) => onConfirmPasswordChange(e.target.value)}
+                      value={password}
+                      onChange={(e) => onPasswordChange(e.target.value)}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA] transition-colors hover:text-[#8A6F5F]"
                     >
-                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
+
+                {authMode === 'signup' && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="mb-1.5 block text-[12px] font-semibold uppercase tracking-wide text-[#8A6F5F]">Confirm Password</label>
+                    <div className="relative">
+                      <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA]" />
+                      <Input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        placeholder="••••••••"
+                        className="h-12 rounded-xl border-[#E8E2DC] bg-white pl-10 pr-11 text-[14px] text-[#2C2420] placeholder:text-lg placeholder:tracking-widest focus:border-[#8A6F5F] focus:ring-1 focus:ring-[#8A6F5F]/20"
+                        value={confirmPassword}
+                        onChange={(e) => onConfirmPasswordChange(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#C4B8AA] transition-colors hover:text-[#8A6F5F]"
+                      >
+                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Error / Info Messages */}
+              {authError && (
+                <div className="mt-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[13px] text-red-600 animate-in fade-in zoom-in-95">
+                  {authError}
+                </div>
               )}
-            </div>
+              {authInfo && (
+                <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3 text-[13px] text-emerald-600 animate-in fade-in zoom-in-95">
+                  {authInfo}
+                </div>
+              )}
 
-            {/* Error / Info Messages */}
-            {authError && (
-              <div className="mt-4 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[13px] text-red-600 animate-in fade-in zoom-in-95">
-                {authError}
-              </div>
-            )}
-            {authInfo && (
-              <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3 text-[13px] text-emerald-600 animate-in fade-in zoom-in-95">
-                {authInfo}
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              onClick={onSubmit}
-              disabled={isSubmittingAuth}
-              className={`
-                mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-white
-                transition-all duration-300 active:scale-[0.97]
-                ${isSubmittingAuth
-                  ? 'bg-[#B5A99A] cursor-not-allowed'
-                  : 'bg-[#2C2420] hover:bg-[#8A6F5F] shadow-lg shadow-[#2C2420]/15 hover:shadow-[#8A6F5F]/25'
-                }
-              `}
-            >
-              {isSubmittingAuth ? 'Processing...' : authMode === 'signin' ? 'Sign In' : 'Create Account'}
-              {!isSubmittingAuth && <ArrowRight size={16} />}
-            </button>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmittingAuth}
+                className={`
+                  mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-white
+                  transition-all duration-300 active:scale-[0.97]
+                  ${isSubmittingAuth
+                    ? 'bg-[#B5A99A] cursor-not-allowed'
+                    : 'bg-[#2C2420] hover:bg-[#8A6F5F] shadow-lg shadow-[#2C2420]/15 hover:shadow-[#8A6F5F]/25'
+                  }
+                `}
+              >
+                {isSubmittingAuth ? 'Processing...' : authMode === 'signin' ? 'Sign In' : 'Create Account'}
+                {!isSubmittingAuth && <ArrowRight size={16} />}
+              </button>
+            </form>
 
             {/* Legal */}
             <p className="mt-6 text-center text-[11px] leading-relaxed text-[#C4B8AA]">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, ShoppingBag, Plus, Eye, X, ShieldCheck, Zap } from 'lucide-react';
+import { Heart, ShoppingBag, Plus, Eye, X, ShieldCheck, Zap, Bell } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -9,14 +9,38 @@ import { useToast } from '@/contexts/ToastContext';
 import type { ProductDTO } from '@/types';
 import { formatMoney } from '@/utils/moneyUtils';
 
-export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
+export const ProductGrid = ({ 
+  clinicId,
+  onNavigate,
+  wishlistCount = 0,
+  notificationsCount = 0
+}: { 
+  clinicId: string;
+  onNavigate?: (tab: string) => void;
+  wishlistCount?: number;
+  notificationsCount?: number;
+}) => {
   const { data, isLoading } = useProducts(clinicId);
   const [quickViewProduct, setQuickViewProduct] = useState<ProductDTO | null>(null);
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
   const toast = useToast();
 
   const addProduct = useCartStore((state) => state.addProduct);
   const toggleWishlist = useWishlistStore((state) => state.toggleProduct);
   const isWishlisted = useWishlistStore((state) => state.isWishlisted);
+
+  const handleWishlist = (product: ProductDTO) => {
+    const wasWishlisted = isWishlisted(product.id);
+    setAnimatingId(product.id);
+    toggleWishlist(product);
+    setTimeout(() => setAnimatingId(null), 400);
+    
+    if (!wasWishlisted) {
+      toast.success(`${product.name} saved to wishlist`);
+    } else {
+      toast.success(`Removed from wishlist`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -33,12 +57,6 @@ export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
 
   return (
     <div className="animate-in fade-in duration-300">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="font-['Playfair_Display'] text-3xl font-bold tracking-tight text-[#2C2420]">Products</h2>
-        <p className="mt-1 text-[13px] text-[#B5A99A]">Professional skincare formulas</p>
-      </div>
-
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {data.map((product: ProductDTO) => (
@@ -46,16 +64,23 @@ export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
             {/* Image Area */}
             <div className="relative aspect-square bg-[#F5F0EB] flex items-center justify-center">
               <ShoppingBag size={40} className="text-[#8A6F5F]/10" />
-              {product.stock < 5 && (
+              {product.stock < 5 && product.stock > 0 && (
                 <span className="absolute top-3 left-3 rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-600 border border-red-100">
                   Low Stock
+                </span>
+              )}
+              {product.stock === 0 && (
+                <span className="absolute top-3 left-3 rounded-md bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-[#8A6F5F] border border-neutral-200">
+                  Out of Stock
                 </span>
               )}
               {/* Hover Controls */}
               <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/5 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
-                  onClick={() => toggleWishlist(product)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1A1A1A] shadow-sm transition-colors hover:bg-[#8A6F5F] hover:text-white"
+                  onClick={() => handleWishlist(product)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1A1A1A] shadow-sm transition-all hover:bg-[#8A6F5F] hover:text-white ${
+                    animatingId === product.id ? 'animate-wishlist-pop' : ''
+                  }`}
                 >
                   <Heart size={16} className={isWishlisted(product.id) ? 'fill-current text-[#8A6F5F]' : ''} />
                 </button>

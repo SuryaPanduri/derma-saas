@@ -45,7 +45,42 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Manual Scroll Sync
+  const [profileSection, setProfileSection] = React.useState<'menu' | 'profile_edit' | 'bookings' | 'orders'>('menu');
+  const [bannerProgress, setBannerProgress] = React.useState(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto Scroll & Progress Logic
+  useEffect(() => {
+    if (activeTab !== 'Home') return;
+    
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    
+    const duration = 5000;
+    const interval = 50;
+    const step = (interval / duration) * 100;
+
+    progressIntervalRef.current = setInterval(() => {
+      setBannerProgress((prev) => {
+        if (prev >= 100) {
+          if (scrollRef.current) {
+            const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
+            scrollRef.current.scrollTo({
+              left: nextIndex * scrollRef.current.clientWidth,
+              behavior: 'smooth'
+            });
+          }
+          return 0;
+        }
+        return prev + step;
+      });
+    }, interval);
+
+    return () => {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    };
+  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
+
+  // Manual Scroll Sync (and reset progress)
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
@@ -53,26 +88,10 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
       const newIndex = Math.round(scrollLeft / clientWidth);
       if (newIndex !== offerIndex && newIndex < CUSTOMER_OFFERS.length) {
         setOfferIndex(() => newIndex);
+        setBannerProgress(0); // Reset progress on manual scroll
       }
     }
   };
-
-  // Auto Scroll Logic
-  useEffect(() => {
-    if (activeTab !== 'Home') return;
-
-    const interval = setInterval(() => {
-      if (scrollRef.current) {
-        const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
-        scrollRef.current.scrollTo({
-          left: nextIndex * scrollRef.current.clientWidth,
-          behavior: 'smooth'
-        });
-      }
-    }, 5000); // 5s interval
-
-    return () => clearInterval(interval);
-  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5] pb-32 touch-pan-y">
@@ -85,20 +104,34 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
             className="h-6 w-auto cursor-pointer transition-transform active:scale-95" 
             onClick={() => setActiveTab('Home')}
           />
-          {activeTab === 'Home' && (
+          {['Home', 'Services', 'Products'].includes(activeTab) && (
             <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-300">
-              <button onClick={() => setActiveTab('Notifications')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
+              <button 
+                onClick={() => setActiveTab('Notifications')} 
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors active:bg-[#D4C8BC] ${
+                  activeTab === 'Notifications' ? 'bg-[#8A6F5F] text-white' : 'bg-[#EDE8E3] text-[#8A6F5F]'
+                }`}
+              >
                 <Bell size={17} />
                 {notificationsCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
+                  <span className={`absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full text-[8px] font-bold ring-2 ring-[#FAF8F5] ${
+                    activeTab === 'Notifications' ? 'bg-[#CA8A04] text-white' : 'bg-[#8A6F5F] text-white'
+                  }`}>
                     {notificationsCount}
                   </span>
                 )}
               </button>
-              <button onClick={() => setActiveTab('Wishlists')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
+              <button 
+                onClick={() => setActiveTab('Wishlists')} 
+                className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors active:bg-[#D4C8BC] ${
+                  activeTab === 'Wishlists' ? 'bg-[#8A6F5F] text-white' : 'bg-[#EDE8E3] text-[#8A6F5F]'
+                }`}
+              >
                 <Heart size={17} />
                 {wishlistCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
+                  <span className={`absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full text-[8px] font-bold ring-2 ring-[#FAF8F5] ${
+                    activeTab === 'Wishlists' ? 'bg-[#CA8A04] text-white' : 'bg-[#8A6F5F] text-white'
+                  }`}>
                     {wishlistCount}
                   </span>
                 )}
@@ -183,7 +216,17 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
                 {/* Visual indicator of total items */}
                 <div className="mt-2 flex justify-center gap-1.5">
                   {CUSTOMER_OFFERS.map((_, i) => (
-                    <div key={i} className={`h-1.5 rounded-full transition-all duration-400 ${offerIndex === i ? 'w-5 bg-[#8A6F5F]' : 'w-1.5 bg-[#E8E2DC]'}`} />
+                    <div 
+                      key={i} 
+                      className={`h-1.5 rounded-full overflow-hidden transition-all duration-400 bg-[#E8E2DC] ${offerIndex === i ? 'w-8' : 'w-1.5'}`}
+                    >
+                      {offerIndex === i && (
+                        <div 
+                          className="h-full bg-[#8A6F5F]"
+                          style={{ width: `${bannerProgress}%` }}
+                        />
+                      )}
+                    </div>
                   ))}
                 </div>
               </section>
@@ -297,13 +340,40 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
 
         {/* ═══ View Routing ═══ */}
         <div className={activeTab !== 'Home' ? 'px-4 pt-4' : ''}>
-          {activeTab === 'Services' && <ServiceCatalogView clinicId={clinicId} />}
-          {activeTab === 'Products' && <ProductGrid clinicId={clinicId} />}
-          {activeTab === 'Wishlists' && <WishlistView />}
-          {activeTab === 'Notifications' && <NotificationsView />}
-          {activeTab === 'Cart' && <CartView onProceedToCheckout={() => setActiveTab('Checkout')} />}
-          {activeTab === 'Checkout' && <OrdersView clinicId={clinicId} showHistory={false} showCheckout />}
-          {activeTab === 'Profile' && <ProfileView clinicId={clinicId} onSignOut={handleSignOut} />}
+          {activeTab === 'Services' && (
+            <ServiceCatalogView 
+              clinicId={clinicId} 
+              onNavigate={setActiveTab}
+              wishlistCount={wishlistCount}
+              notificationsCount={notificationsCount}
+            />
+          )}
+          {activeTab === 'Products' && (
+            <ProductGrid 
+              clinicId={clinicId} 
+              onNavigate={setActiveTab}
+              wishlistCount={wishlistCount}
+              notificationsCount={notificationsCount}
+            />
+          )}
+        {activeTab === 'Wishlists' && <WishlistView />}
+        {activeTab === 'Notifications' && (
+          <NotificationsView 
+            onNavigate={(tab, section) => {
+              setActiveTab(tab as any);
+              if (section) setProfileSection(section as any);
+            }} 
+          />
+        )}
+        {activeTab === 'Cart' && <CartView onProceedToCheckout={() => setActiveTab('Checkout')} />}
+        {activeTab === 'Checkout' && <OrdersView clinicId={clinicId} showHistory={false} showCheckout />}
+        {activeTab === 'Profile' && (
+          <ProfileView 
+            clinicId={clinicId} 
+            onSignOut={handleSignOut} 
+            initialSection={profileSection} 
+          />
+        )}
         </div>
       </main>
 

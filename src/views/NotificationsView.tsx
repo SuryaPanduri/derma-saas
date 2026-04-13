@@ -14,7 +14,11 @@ type NotificationItem = {
   createdAt: string;
 };
 
-export const NotificationsView = () => {
+export const NotificationsView = ({ 
+  onNavigate 
+}: { 
+  onNavigate?: (tab: string, section?: string) => void 
+}) => {
   const user = useAuthStore((state) => state.user);
   const ordersQuery = useOrders(user?.id ?? '');
   const bookingsQuery = useBookings(user?.id ?? '');
@@ -142,7 +146,14 @@ export const NotificationsView = () => {
           <div className={`space-y-4 transition-all duration-500 ${isClearing ? 'scale-[0.98] opacity-0 blur-lg' : 'opacity-100'}`}>
             <div className="overflow-hidden rounded-2xl border border-black/[0.03] bg-white shadow-sm ring-1 ring-black/5 divide-y divide-black/[0.04]">
               {paginatedNotifications.map((item) => (
-                <div key={item.id} className="group flex items-start gap-4 p-5 transition-colors hover:bg-[#FAF8F5]">
+                <div 
+                  key={item.id} 
+                  onClick={() => {
+                    if (item.type === 'order') onNavigate?.('Profile', 'orders');
+                    if (item.type === 'booking') onNavigate?.('Profile', 'bookings');
+                  }}
+                  className="group flex items-start gap-4 p-5 transition-colors hover:bg-[#FAF8F5] cursor-pointer"
+                >
                   <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110 ${
                     item.type === 'order' ? 'bg-[#8A6F5F]/10 text-[#8A6F5F]' : 'bg-[#D4C8BC]/20 text-[#5D4A3E]'
                   }`}>

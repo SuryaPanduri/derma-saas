@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { useCreateOrder, useOrders } from '@/hooks';
-import { useAuthStore, useCartStore } from '@/store';
+import { useAuthStore, useCartStore, VALID_COUPONS } from '@/store';
 import { formatMoney } from '@/utils/moneyUtils';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Input } from '@/components/ui/Input';
@@ -23,11 +23,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-const COUPONS = [
-  { code: 'SKINTHEORY25', label: '25% OFF up to Rs 500' },
-  { code: 'GLOW10', label: '10% OFF up to Rs 250' }
-];
-
 export const OrdersView = ({
   clinicId,
   showHistory = true,
@@ -38,22 +33,20 @@ export const OrdersView = ({
   showCheckout?: boolean;
 }) => {
   const user = useAuthStore((state) => state.user);
-  const { items, clearCart, removeProduct, addProduct } = useCartStore();
+  const { items, clearCart, removeProduct, addProduct, appliedCoupon } = useCartStore();
   const ordersQuery = useOrders(user?.id ?? '');
   const { mutateAsync, isLoading } = useCreateOrder();
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<'history' | 'checkout'>(items.length > 0 && showCheckout ? 'checkout' : 'history');
-  const [couponInput, setCouponInput] = useState('');
-  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
-  const couponRule = COUPONS.find((c) => c.code === appliedCouponCode);
-  const rawDiscount = couponRule ? Math.floor((subtotal * (couponRule.code === 'SKINTHEORY25' ? 25 : 10)) / 100) : 0;
-  const maxDiscount = couponRule ? (couponRule.code === 'SKINTHEORY25' ? 50000 : 25000) : 0;
-  const discount = couponRule ? Math.min(rawDiscount, maxDiscount) : 0;
+  
+  // Clean discount logic using global store
+  const discountPercent = appliedCoupon ? (VALID_COUPONS[appliedCoupon as keyof typeof VALID_COUPONS] || 0) : 0;
+  const discount = Math.round(subtotal * (discountPercent / 100));
   const total = Math.max(0, subtotal - discount);
 
   const recentOrders = useMemo(
@@ -80,21 +73,11 @@ export const OrdersView = ({
     return 3;
   };
 
-  const applyCoupon = () => {
-    const code = couponInput.trim().toUpperCase();
-    if (!code) return;
-    if (!COUPONS.some((c) => c.code === code)) { toast.error('Invalid code'); return; }
-    setAppliedCouponCode(code);
-    toast.success(`Coupon ${code} applied`);
-  };
-
   const handleCheckout = async () => {
     if (!user || !items.length) return;
     try {
-      await mutateAsync({ clinicId, patientUid: user.id, items, couponCode: appliedCouponCode ?? undefined });
+      await mutateAsync({ clinicId, patientUid: user.id, items, couponCode: appliedCoupon ?? undefined });
       clearCart();
-      setAppliedCouponCode(null);
-      setCouponInput('');
       toast.success('Order placed successfully');
       setActiveTab('history');
     } catch { toast.error('Order failed'); }
@@ -388,21 +371,6 @@ export const OrdersView = ({
               <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
               <h3 className="text-[11px] font-black uppercase tracking-widest text-white/40 mb-6">Settlement Summary</h3>
               
-              <div className="flex gap-2 mb-6">
-                <input 
-                  value={couponInput} 
-                  onChange={(e) => setCouponInput(e.target.value)} 
-                  placeholder="CODE" 
-                  className="h-11 rounded-xl border border-white/10 bg-white/5 px-4 text-[12px] font-black uppercase tracking-widest text-white outline-none focus:border-white/30 transition-all flex-1" 
-                />
-                <button 
-                  onClick={applyCoupon} 
-                  className="h-11 rounded-xl bg-white px-5 text-[11px] font-black uppercase tracking-widest text-[#191919] shadow-md active:scale-95 transition-transform"
-                >
-                  APPLY
-                </button>
-              </div>
-
               <div className="space-y-3 text-[13px] font-medium">
                 <div className="flex justify-between opacity-60"><span>Basket Total</span><span>{formatMoney(subtotal)}</span></div>
                 <div className="flex justify-between text-emerald-400"><span>Applied Rewards</span><span>−{formatMoney(discount)}</span></div>
@@ -417,7 +385,7 @@ export const OrdersView = ({
               <Button 
                 onClick={handleCheckout} 
                 disabled={!items.length || isLoading} 
-                className="mt-8 h-12 w-full rounded-xl bg-white text-[11px] font-black uppercase tracking-[0.2em] text-[#191919] hover:bg-[#B5A99A] shadow-lg transition-all"
+                className="mt-8 h-12 w-full rounded-xl bg-[#CA8A04] text-[11px] font-black uppercase tracking-[0.2em] text-white hover:bg-[#B87D03] shadow-lg transition-all active:scale-95"
               >
                 {isLoading ? 'SECURE_TRANSACTION...' : 'PLACE ORDER'}
               </Button>

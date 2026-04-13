@@ -61,7 +61,44 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
     { id: 'Profile', icon: User, count: 0 }
   ];
 
-  // Manual Scroll Sync
+  const [profileSection, setProfileSection] = React.useState<'menu' | 'profile_edit' | 'bookings' | 'orders'>('menu');
+  const [bannerProgress, setBannerProgress] = React.useState(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto Scroll & Progress Logic
+  useEffect(() => {
+    if (activeTab !== 'Home') return;
+    
+    // Clear any existing interval
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    
+    const duration = 5000; // 5 seconds
+    const interval = 50; // Update progress every 50ms
+    const step = (interval / duration) * 100;
+
+    progressIntervalRef.current = setInterval(() => {
+      setBannerProgress((prev) => {
+        if (prev >= 100) {
+          // Trigger next slide
+          if (scrollRef.current) {
+            const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
+            scrollRef.current.scrollTo({
+              left: nextIndex * scrollRef.current.clientWidth,
+              behavior: 'smooth'
+            });
+          }
+          return 0;
+        }
+        return prev + step;
+      });
+    }, interval);
+
+    return () => {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    };
+  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
+
+  // Manual Scroll Sync (and reset progress)
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollLeft = scrollRef.current.scrollLeft;
@@ -69,33 +106,18 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
       const newIndex = Math.round(scrollLeft / clientWidth);
       if (newIndex !== offerIndex && newIndex < CUSTOMER_OFFERS.length) {
         setOfferIndex(() => newIndex);
+        setBannerProgress(0); // Reset progress on manual scroll
       }
     }
   };
-
-  // Auto Scroll Logic
-  useEffect(() => {
-    if (activeTab !== 'Home') return;
-    
-    const interval = setInterval(() => {
-      if (scrollRef.current) {
-        const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
-        scrollRef.current.scrollTo({
-          left: nextIndex * scrollRef.current.clientWidth,
-          behavior: 'smooth'
-        });
-      }
-    }, 5000); // Auto-scroll every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAFAF8]">
       {/* ─── Minimal Navigation ─── */}
       <nav className="sticky top-0 z-40 border-b border-[#E8E2DC]/60 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
-          <div className="flex items-center gap-10">
+        <div className="mx-auto max-w-[1120px] px-6">
+          {/* Top Tier: Logo & Main Icons */}
+          <div className="flex h-14 items-center justify-between">
             <img 
               src="/logo.png" 
               alt="The Skin Theory" 
@@ -103,6 +125,30 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
               onClick={() => setActiveTab('Home')}
             />
             <div className="flex items-center gap-1">
+              {iconTabs.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                    activeTab === item.id
+                      ? 'bg-[#F5F0EB] text-[#8A6F5F]'
+                      : 'text-[#B5A99A] hover:bg-[#FAFAF8] hover:text-[#8A6F5F]'
+                  }`}
+                >
+                  <item.icon size={18} />
+                  {item.count > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#8A6F5F] text-[9px] font-bold text-white ring-2 ring-white">
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Tier: Tabs & Search (Only for Catalog Views) */}
+          <div className="flex h-12 items-center justify-between border-t border-[#E8E2DC]/30">
+            <div className="flex items-center gap-1 -ml-4">
               {navTabs.map((tab) => (
                 <button
                   key={tab}
@@ -120,37 +166,15 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
             <div className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B5A99A]" />
               <input
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
-                placeholder="Search..."
-                className="h-9 w-52 rounded-lg border border-[#E8E2DC] bg-[#FAFAF8] pl-9 pr-3 text-[13px] text-[#1A1A1A] outline-none transition-all focus:w-72 focus:border-[#8A6F5F] focus:bg-white"
+                placeholder="Search treatments, products..."
+                className="h-8 w-64 rounded-lg border border-[#E8E2DC] bg-[#FAFAF8] pl-9 pr-3 text-[12px] text-[#1A1A1A] outline-none transition-all focus:border-[#8A6F5F] focus:bg-white"
               />
-            </div>
-            <div className="ml-2 flex items-center gap-1">
-              {iconTabs.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                    activeTab === item.id
-                      ? 'bg-[#F5F0EB] text-[#8A6F5F]'
-                      : 'text-[#B5A99A] hover:bg-[#FAFAF8] hover:text-[#8A6F5F]'
-                  }`}
-                >
-                  <item.icon size={18} />
-                  {item.count > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#8A6F5F] text-[9px] font-bold text-white">
-                      {item.count}
-                    </span>
-                  )}
-                </button>
-              ))}
             </div>
           </div>
         </div>
@@ -257,11 +281,19 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
                           left: i * scrollRef.current.clientWidth,
                           behavior: 'smooth'
                         });
+                        setBannerProgress(0);
                       }}
-                      className={`h-1.5 rounded-full transition-all ${
-                        offerIndex === i ? 'w-6 bg-[#8A6F5F]' : 'w-1.5 bg-[#E8E2DC] hover:bg-[#D4C8BC]'
+                      className={`h-1.5 rounded-full overflow-hidden transition-all bg-[#E8E2DC] ${
+                        offerIndex === i ? 'w-10' : 'w-1.5 hover:bg-[#D4C8BC]'
                       }`}
-                    />
+                    >
+                      {offerIndex === i && (
+                        <div 
+                          className="h-full bg-[#8A6F5F]"
+                          style={{ width: `${bannerProgress}%` }}
+                        />
+                      )}
+                    </button>
                   ))}
                 </div>
               </section>
@@ -395,13 +427,40 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
         )}
 
         {/* ─── View Routing ─── */}
-        {activeTab === 'Services' && <ServiceCatalogView clinicId={clinicId} />}
-        {activeTab === 'Products' && <ProductGrid clinicId={clinicId} />}
+        {activeTab === 'Services' && (
+          <ServiceCatalogView 
+            clinicId={clinicId} 
+            onNavigate={setActiveTab}
+            wishlistCount={wishlistCount}
+            notificationsCount={notificationsCount}
+          />
+        )}
+        {activeTab === 'Products' && (
+          <ProductGrid 
+            clinicId={clinicId} 
+            onNavigate={setActiveTab}
+            wishlistCount={wishlistCount}
+            notificationsCount={notificationsCount}
+          />
+        )}
         {activeTab === 'Wishlists' && <WishlistView />}
-        {activeTab === 'Notifications' && <NotificationsView />}
+        {activeTab === 'Notifications' && (
+          <NotificationsView 
+            onNavigate={(tab, section) => {
+              setActiveTab(tab as any);
+              if (section) setProfileSection(section as any);
+            }} 
+          />
+        )}
         {activeTab === 'Cart' && <CartView onProceedToCheckout={() => setActiveTab('Checkout')} />}
         {activeTab === 'Checkout' && <OrdersView clinicId={clinicId} showHistory={false} showCheckout />}
-        {activeTab === 'Profile' && <ProfileView clinicId={clinicId} onSignOut={handleSignOut} />}
+        {activeTab === 'Profile' && (
+          <ProfileView 
+            clinicId={clinicId} 
+            onSignOut={handleSignOut} 
+            initialSection={profileSection} 
+          />
+        )}
         </div>
       </main>
 
