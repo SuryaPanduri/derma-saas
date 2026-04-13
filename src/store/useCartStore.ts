@@ -1,32 +1,66 @@
 import { create } from 'zustand';
 import type { OrderItemDTO, ProductDTO } from '@/types';
 
+interface AddProductResult {
+  success: boolean;
+  error?: string;
+}
+
 interface CartState {
   items: OrderItemDTO[];
-  addProduct: (product: ProductDTO, quantity?: number) => void;
+  addProduct: (product: ProductDTO, quantity?: number) => AddProductResult;
   removeProduct: (productId: string) => void;
   clearCart: () => void;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
-  addProduct: (product, quantity = 1) => {
+  addProduct: (product, quantity = 1): AddProductResult => {
+    if (product.stock <= 0) {
+      return { success: false, error: 'Product is currently out of stock.' };
+    }
+
     const safeQuantity = Math.max(1, Math.floor(quantity));
-    const existing = get().items.find((item) => item.productId === product.id);
+    const items = get().items;
+    const existing = items.find((item) => item.productId === product.id);
 
     if (existing) {
-      const cappedQuantity = Math.min(product.stock, existing.quantity + safeQuantity);
+      const newQuantity = existing.quantity + safeQuantity;
+      if (newQuantity > product.stock) {
+        set({
+          items: items.map((item) =>
+            item.productId === product.id ? { ...item, quantity: product.stock } : item
+          )
+        });
+        return { success: true, error: `Only ${product.stock} items available. Quantity adjusted.` };
+      }
+
       set({
-        items: get().items.map((item) =>
-          item.productId === product.id ? { ...item, quantity: cappedQuantity } : item
+        items: items.map((item) =>
+          item.productId === product.id ? { ...item, quantity: newQuantity } : item
         )
       });
-      return;
+      return { success: true };
+    }
+
+    if (safeQuantity > product.stock) {
+      set({
+        items: [
+          ...items,
+          {
+            productId: product.id,
+            name: product.name,
+            quantity: product.stock,
+            unitPriceCents: product.priceCents
+          }
+        ]
+      });
+      return { success: true, error: `Only ${product.stock} items available. Quantity adjusted.` };
     }
 
     set({
       items: [
-        ...get().items,
+        ...items,
         {
           productId: product.id,
           name: product.name,
@@ -35,6 +69,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         }
       ]
     });
+    return { success: true };
   },
   removeProduct: (productId) => {
     set({ items: get().items.filter((item) => item.productId !== productId) });

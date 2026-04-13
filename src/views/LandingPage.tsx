@@ -124,7 +124,7 @@ export const LandingPage = ({ onOpenAuth, onOpenEnquiry }: LandingPageProps) => 
             >
               Sign In
             </Button>
-            <button className="md:hidden">
+            <button onClick={onOpenAuth} className="p-2 text-[#191919] hover:text-[#8A6F5F] md:hidden">
               <User size={24} />
             </button>
           </div>

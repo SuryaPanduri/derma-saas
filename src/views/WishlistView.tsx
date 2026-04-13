@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useCartStore, useWishlistStore } from '@/store';
 import { formatMoney } from '@/utils/moneyUtils';
+import { useToast } from '@/contexts/ToastContext';
 
 export const WishlistView = () => {
   const items = useWishlistStore((state) => state.items);
   const removeProduct = useWishlistStore((state) => state.removeProduct);
   const clearWishlist = useWishlistStore((state) => state.clearWishlist);
   const addProduct = useCartStore((state) => state.addProduct);
+  const toast = useToast();
   const inStockCount = items.filter((item) => item.stock > 0).length;
   const totalValue = items.reduce((sum, item) => sum + item.priceCents, 0);
 
@@ -79,7 +81,14 @@ export const WishlistView = () => {
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <Button
                 className="flex-1 bg-[#0f4a52] text-white hover:bg-[#0a3a41]"
-                onClick={() => addProduct(product, 1)}
+                onClick={() => {
+                  const result = addProduct(product, 1);
+                  if (result.success) {
+                    toast.success(result.error || `${product.name} added to cart`);
+                  } else {
+                    toast.error(result.error || 'Failed to add product');
+                  }
+                }}
                 disabled={product.stock <= 0}
               >
                 <ShoppingCart size={14} className="mr-1" />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Search, Bell, Heart, ShoppingCart, User, ChevronRight, MessageCircle, ShieldCheck, FlaskConical, HeartHandshake, ChevronDown, Stethoscope, Instagram, Facebook, Youtube, ArrowRight, Sparkles, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ServiceCatalogView } from '@/views/ServiceCatalogView';
@@ -52,6 +52,7 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
   handleSignOut,
   setIsEnquiryOpen
 }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const navTabs = ['Home', 'Services', 'Products'];
   const iconTabs = [
     { id: 'Notifications', icon: Bell, count: notificationsCount },
@@ -60,13 +61,47 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
     { id: 'Profile', icon: User, count: 0 }
   ];
 
+  // Manual Scroll Sync
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const scrollLeft = scrollRef.current.scrollLeft;
+      const clientWidth = scrollRef.current.clientWidth;
+      const newIndex = Math.round(scrollLeft / clientWidth);
+      if (newIndex !== offerIndex && newIndex < CUSTOMER_OFFERS.length) {
+        setOfferIndex(() => newIndex);
+      }
+    }
+  };
+
+  // Auto Scroll Logic
+  useEffect(() => {
+    if (activeTab !== 'Home') return;
+    
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
+        scrollRef.current.scrollTo({
+          left: nextIndex * scrollRef.current.clientWidth,
+          behavior: 'smooth'
+        });
+      }
+    }, 5000); // Auto-scroll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#FAFAF8]">
       {/* ─── Minimal Navigation ─── */}
       <nav className="sticky top-0 z-40 border-b border-[#E8E2DC]/60 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
           <div className="flex items-center gap-10">
-            <img src="/logo.png" alt="The Skin Theory" className="h-8 w-auto" />
+            <img 
+              src="/logo.png" 
+              alt="The Skin Theory" 
+              className="h-8 w-auto cursor-pointer transition-transform active:scale-95" 
+              onClick={() => setActiveTab('Home')}
+            />
             <div className="flex items-center gap-1">
               {navTabs.map((tab) => (
                 <button
@@ -126,7 +161,14 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
         <div className="mx-auto w-full max-w-[1120px] px-6 py-10">
         {activeTab === 'Home' && (
           <div className="space-y-16 animate-in fade-in duration-500">
-            
+            {/* ─── Logo Home Redirect & Coupon Ribbon ─── */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 border border-emerald-100/50">
+                <Sparkles size={16} className="text-emerald-600" />
+                <p className="text-[13px] font-bold text-emerald-800">Welcome Offer: Flat 10% OFF on your first treatment or order. Use code <span className="underline decoration-wavy underline-offset-2">FIRSTGLOW</span></p>
+              </div>
+            </div>
+
             {/* ─── Greeting + Quick Actions ─── */}
             <section>
               <div className="mb-8">
@@ -134,7 +176,7 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
                   Welcome back
                 </p>
                 <h2 className="font-['Playfair_Display'] mt-1 text-4xl font-bold tracking-tight text-[#2C2420]">
-                  {user?.fullName || user?.email?.split('@')[0] || 'Guest'}
+                  {user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'Guest'}
                 </h2>
               </div>
 
@@ -162,48 +204,70 @@ export const CustomerDesktopView: React.FC<CustomerDesktopViewProps> = ({
               </div>
             </section>
 
-            {/* ─── Featured Offer (Single Panel) ─── */}
+            {/* ─── Scrollable Banners ─── */}
             {CUSTOMER_OFFERS.length > 0 && (
-              <section className="relative rounded-2xl overflow-hidden bg-[#2C2420] shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#8A6F5F]/20 via-transparent to-[#5D4A3E]/30" />
-                <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#8A6F5F]/8 blur-[100px]" />
-                <div className="relative flex flex-col md:flex-row">
-                  <div className="flex-1 p-12 flex flex-col justify-center">
-                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/8 border border-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur-sm">
-                      <Sparkles size={10} /> Featured Ritual
-                    </span>
-                    <h3 className="font-['Playfair_Display'] mt-5 text-3xl font-bold tracking-tight text-white leading-tight">
-                      {CUSTOMER_OFFERS[offerIndex]?.title}
-                    </h3>
-                    <p className="mt-3 text-[15px] leading-relaxed text-white/50 max-w-md">
-                      {CUSTOMER_OFFERS[offerIndex]?.subtitle}
-                    </p>
-                    <div className="mt-8 flex items-center gap-5">
-                      <Button
-                        onClick={() => setActiveTab(CUSTOMER_OFFERS[offerIndex]?.cta?.toLowerCase().includes('product') ? 'Products' : 'Services')}
-                        className="h-11 rounded-xl bg-[#FAF8F5] px-7 text-[13px] font-semibold text-[#2C2420] hover:bg-white shadow-lg transition-all"
-                      >
-                        {CUSTOMER_OFFERS[offerIndex]?.cta}
-                      </Button>
-                      <div className="flex gap-1.5">
-                        {CUSTOMER_OFFERS.map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setOfferIndex(() => i)}
-                            className={`h-1.5 rounded-full transition-all ${
-                              offerIndex === i ? 'w-6 bg-white' : 'w-1.5 bg-white/20 hover:bg-white/40'
-                            }`}
-                          />
-                        ))}
+              <section className="relative">
+                <div 
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  className="flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4"
+                >
+                  {CUSTOMER_OFFERS.map((offer, idx) => (
+                    <div 
+                      key={idx}
+                      className="min-w-full snap-center relative rounded-2xl overflow-hidden bg-[#2C2420] shadow-xl"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#8A6F5F]/20 via-transparent to-[#5D4A3E]/30" />
+                      <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#8A6F5F]/8 blur-[100px]" />
+                      <div className="relative flex flex-col md:flex-row">
+                        <div className="flex-1 p-12 flex flex-col justify-center text-left">
+                          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 border border-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70 backdrop-blur-sm">
+                            <Sparkles size={10} /> {idx === 0 ? 'Featured Ritual' : 'Special Offer'}
+                          </span>
+                          <h3 className="font-['Playfair_Display'] mt-5 text-3xl font-bold tracking-tight text-white leading-tight">
+                            {offer.title}
+                          </h3>
+                          <p className="mt-3 text-[15px] leading-relaxed text-white/50 max-w-md">
+                            {offer.subtitle}
+                          </p>
+                          <div className="mt-8 flex items-center gap-5">
+                            <Button
+                              onClick={() => setActiveTab(offer.cta?.toLowerCase().includes('product') ? 'Products' : 'Services')}
+                              className="h-11 rounded-xl bg-white px-7 text-[13px] font-bold !text-[#2C2420] hover:bg-neutral-100 shadow-lg transition-all"
+                            >
+                              {offer.cta}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="h-72 w-full md:h-auto md:w-96 bg-gradient-to-br from-[#3A302B] to-[#2C2420] flex items-center justify-center">
+                          <Sparkles size={80} className="text-[#8A6F5F]/25" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="h-72 w-full md:h-auto md:w-96 bg-gradient-to-br from-[#3A302B] to-[#2C2420] flex items-center justify-center">
-                    <Sparkles size={80} className="text-[#8A6F5F]/15" />
-                  </div>
+                  ))}
+                </div>
+                
+                {/* Navigation Dots */}
+                <div className="mt-2 flex justify-center gap-1.5">
+                  {CUSTOMER_OFFERS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        scrollRef.current?.scrollTo({
+                          left: i * scrollRef.current.clientWidth,
+                          behavior: 'smooth'
+                        });
+                      }}
+                      className={`h-1.5 rounded-full transition-all ${
+                        offerIndex === i ? 'w-6 bg-[#8A6F5F]' : 'w-1.5 bg-[#E8E2DC] hover:bg-[#D4C8BC]'
+                      }`}
+                    />
+                  ))}
                 </div>
               </section>
             )}
+
+
 
             {/* ─── Shop by Concern ─── */}
             <section>

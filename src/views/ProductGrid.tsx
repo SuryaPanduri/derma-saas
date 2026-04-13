@@ -66,7 +66,14 @@ export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
                   <Eye size={16} />
                 </button>
                 <button
-                  onClick={() => { addProduct(product, 1); toast.success(`${product.name} added to cart`); }}
+                  onClick={() => {
+                    const result = addProduct(product, 1);
+                    if (result.success) {
+                      toast.success(result.error || `${product.name} added to cart`);
+                    } else {
+                      toast.error(result.error || 'Failed to add product');
+                    }
+                  }}
                   className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A1A1A] text-white shadow-sm transition-colors hover:bg-[#8A6F5F]"
                 >
                   <Plus size={16} />
@@ -129,9 +136,13 @@ export const ProductGrid = ({ clinicId }: { clinicId: string }) => {
                     <Button
                       className="flex-1 h-10 rounded-lg bg-[#1A1A1A] text-[13px] font-medium text-white hover:bg-[#8A6F5F] transition-colors"
                       onClick={() => {
-                        addProduct(quickViewProduct, 1);
-                        toast.success(`${quickViewProduct.name} added to cart`);
-                        setQuickViewProduct(null);
+                        const result = addProduct(quickViewProduct, 1);
+                        if (result.success) {
+                          toast.success(result.error || `${quickViewProduct.name} added to cart`);
+                          setQuickViewProduct(null);
+                        } else {
+                          toast.error(result.error || 'Failed to add product');
+                        }
                       }}
                     >
                       Add to Cart

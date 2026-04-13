@@ -17,12 +17,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, ca
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-[100]">
       {/* Soft top edge fade */}
-      <div className="pointer-events-none h-6 bg-gradient-to-t from-white/80 to-transparent" />
+      <div className="pointer-events-none h-6 bg-gradient-to-t from-white/90 to-transparent" />
 
-      <div className="bg-white/90 backdrop-blur-2xl border-t border-[#E8E2DC]/40 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-around px-3 pt-2 pb-1.5">
+      <div className="bg-white/95 backdrop-blur-xl border-t border-[#E8E2DC]/60 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-around px-3 pt-2.5 pb-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;

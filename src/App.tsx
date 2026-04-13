@@ -347,7 +347,7 @@ export default function App() {
 
   return (
     <ToastProvider>
-      <DashboardLayout hideHeader={!user} fullBleed>
+      <DashboardLayout hideHeader fullBleed>
         {!user && route !== 'auth' ? (
           <LandingPage 
             onOpenAuth={openAuthPage} 

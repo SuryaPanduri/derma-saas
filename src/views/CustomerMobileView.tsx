@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Search, Bell, Heart, ChevronRight, MessageCircle, Sparkles, ArrowRight, ShoppingBag, Stethoscope, Star, FlaskConical, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { BottomNav } from '@/components/layout/BottomNav';
@@ -43,93 +43,148 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
   handleSignOut,
   setIsEnquiryOpen
 }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Manual Scroll Sync
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const scrollLeft = scrollRef.current.scrollLeft;
+      const clientWidth = scrollRef.current.clientWidth;
+      const newIndex = Math.round(scrollLeft / clientWidth);
+      if (newIndex !== offerIndex && newIndex < CUSTOMER_OFFERS.length) {
+        setOfferIndex(() => newIndex);
+      }
+    }
+  };
+
+  // Auto Scroll Logic
+  useEffect(() => {
+    if (activeTab !== 'Home') return;
+
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const nextIndex = (offerIndex + 1) % CUSTOMER_OFFERS.length;
+        scrollRef.current.scrollTo({
+          left: nextIndex * scrollRef.current.clientWidth,
+          behavior: 'smooth'
+        });
+      }
+    }, 5000); // 5s interval
+
+    return () => clearInterval(interval);
+  }, [offerIndex, CUSTOMER_OFFERS.length, activeTab]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF8F5] pb-24 touch-pan-y">
-
+    <div className="flex min-h-screen flex-col bg-[#FAF8F5] pb-32 touch-pan-y">
       {/* ═══ Luxury Header ═══ */}
-      <header className="sticky top-0 z-40 bg-[#FAF8F5] pt-[env(safe-area-inset-top)]">
-        <div className="flex items-center justify-between px-5 py-2">
-          <img src="/logo.png" alt="The Skin Theory" className="h-7 w-auto" />
-          <div className="flex items-center gap-2">
-            <button onClick={() => setActiveTab('Notifications')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
-              <Bell size={17} />
-              {notificationsCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
-                  {notificationsCount}
-                </span>
-              )}
-            </button>
-            <button onClick={() => setActiveTab('Wishlists')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
-              <Heart size={17} />
-              {wishlistCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
-          </div>
+      <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md pt-[env(safe-area-inset-top)] border-b border-[#E8E2DC]/30">
+        <div className="flex items-center justify-between px-5 py-2.5">
+          <img 
+            src="/logo.png" 
+            alt="The Skin Theory" 
+            className="h-6 w-auto cursor-pointer transition-transform active:scale-95" 
+            onClick={() => setActiveTab('Home')}
+          />
+          {activeTab === 'Home' && (
+            <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-300">
+              <button onClick={() => setActiveTab('Notifications')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
+                <Bell size={17} />
+                {notificationsCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
+                    {notificationsCount}
+                  </span>
+                )}
+              </button>
+              <button onClick={() => setActiveTab('Wishlists')} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#EDE8E3] text-[#8A6F5F] transition-colors active:bg-[#D4C8BC]">
+                <Heart size={17} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#8A6F5F] text-[8px] font-bold text-white ring-2 ring-[#FAF8F5]">
+                    {wishlistCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
-        {/* Search */}
-        <div className="px-5 pb-2">
-          <div className="relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B5A99A]" />
-            <input
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-              placeholder="Search treatments, products..."
-              className="h-10 w-full rounded-2xl border border-[#E8E2DC] bg-white pl-10 pr-4 text-[14px] text-[#2C2420] outline-none transition-all placeholder:text-[#C4B8AA] focus:border-[#8A6F5F] focus:shadow-sm"
-            />
+        {/* Search - Only on catalog/home tabs */}
+        {['Home', 'Services', 'Products'].includes(activeTab) && (
+          <div className="px-5 pb-2.5 animate-in fade-in slide-in-from-top-1 duration-300">
+            <div className="relative">
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B5A99A]" />
+              <input
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                placeholder="Search treatments, products..."
+                className="h-9 w-full rounded-xl border border-[#E8E2DC] bg-white pl-9 pr-4 text-[13px] text-[#2C2420] outline-none transition-all placeholder:text-[#C4B8AA] focus:border-[#8A6F5F] focus:shadow-sm"
+              />
+            </div>
           </div>
-        </div>
-        <div className="h-px bg-gradient-to-r from-transparent via-[#D4C8BC]/40 to-transparent" />
+        )}
       </header>
 
       {/* ═══ Main Content ═══ */}
       <main className="flex-1">
         {activeTab === 'Home' && (
-          <div className="space-y-6 pt-2">
+          <div className="space-y-5 pt-1">
+            {/* ─── Coupon Ribbon ─── */}
+            <div className="px-5">
+              <div className="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 border border-emerald-100/50">
+                <Sparkles size={14} className="text-emerald-600 shrink-0" />
+                <p className="text-[11px] font-bold text-emerald-800 leading-tight">Welcome Offer: Flat 10% OFF on your first booking. Code: <span className="underline decoration-wavy underline-offset-2">FIRSTGLOW</span></p>
+              </div>
+            </div>
 
             {/* ─── Personal Greeting ─── */}
-            <section className="px-5 pt-4">
-              <p className="text-[12px] font-medium tracking-wide text-[#B5A99A] uppercase">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}</p>
-              <h2 className="font-['Playfair_Display'] mt-1 text-[26px] font-bold tracking-tight text-[#2C2420] leading-tight">
-                {user?.fullName || user?.email?.split('@')[0] || 'Welcome'}
+            <section className="px-5 pt-1">
+              <p className="text-[11px] font-medium tracking-wider text-[#B5A99A] uppercase">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}</p>
+              <h2 className="font-['Playfair_Display'] mt-0.5 text-[24px] font-bold tracking-tight text-[#2C2420] leading-tight">
+                {user?.fullName?.split(' ')[0] || user?.email?.split('@')[0] || 'Welcome'}
               </h2>
             </section>
 
-            {/* ─── Hero Offer Card ─── */}
+            {/* ─── Scrollable Hero Banners ─── */}
             {CUSTOMER_OFFERS.length > 0 && (
               <section className="px-5">
-                <div className="relative overflow-hidden rounded-[20px] bg-[#2C2420] p-6 shadow-xl">
-                  {/* Subtle warm gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#8A6F5F]/30 via-transparent to-[#5D4A3E]/20" />
-                  <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[#8A6F5F]/10 blur-3xl" />
-
-                  <div className="relative z-10">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm border border-white/10">
-                      <Sparkles size={10} /> Featured Ritual
-                    </span>
-                    <h3 className="font-['Playfair_Display'] mt-4 text-[22px] font-bold leading-tight text-white">
-                      {CUSTOMER_OFFERS[offerIndex]?.title}
-                    </h3>
-                    <p className="mt-2 text-[13px] leading-relaxed text-white/60 max-w-[85%]">
-                      {CUSTOMER_OFFERS[offerIndex]?.subtitle}
-                    </p>
-                    <button
-                      className="mt-6 rounded-full bg-[#FAF8F5] px-6 py-2.5 text-[13px] font-semibold text-[#2C2420] shadow-lg active:scale-95 transition-transform"
-                      onClick={() => setActiveTab(CUSTOMER_OFFERS[offerIndex]?.cta?.includes('Shop') || CUSTOMER_OFFERS[offerIndex]?.cta?.includes('Product') ? 'Products' : 'Services')}
+                <div 
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
+                >
+                  {CUSTOMER_OFFERS.map((offer, idx) => (
+                    <div 
+                      key={idx}
+                      className="min-w-full snap-center relative overflow-hidden rounded-[20px] bg-[#2C2420] p-5 shadow-lg"
                     >
-                      {CUSTOMER_OFFERS[offerIndex]?.cta}
-                    </button>
-                  </div>
+                      {/* Subtle warm gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#8A6F5F]/30 via-transparent to-[#5D4A3E]/20" />
+                      <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[#8A6F5F]/10 blur-3xl" />
 
-                  {/* Dot indicators */}
-                  <div className="relative z-10 mt-6 flex gap-1.5">
-                    {CUSTOMER_OFFERS.map((_, i) => (
-                      <button key={i} onClick={() => setOfferIndex(() => i)} className={`h-1 rounded-full transition-all duration-400 ${offerIndex === i ? 'w-5 bg-white' : 'w-1 bg-white/25'}`} />
-                    ))}
-                  </div>
+                      <div className="relative z-10">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm border border-white/10">
+                          <Sparkles size={9} /> {idx === 0 ? 'Featured Ritual' : 'Special Offer'}
+                        </span>
+                        <h3 className="font-['Playfair_Display'] mt-3 text-[20px] font-bold leading-tight text-white">
+                          {offer.title}
+                        </h3>
+                        <p className="mt-1.5 text-[12px] leading-relaxed text-white/60 max-w-[90%]">
+                          {offer.subtitle}
+                        </p>
+                        <button
+                          className="mt-4 rounded-full bg-white px-5 py-2 text-[12px] font-bold text-[#2C2420] shadow-md active:scale-95 transition-transform"
+                          onClick={() => setActiveTab(offer.cta?.includes('Shop') || offer.cta?.includes('Product') ? 'Products' : 'Services')}
+                        >
+                          {offer.cta}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Visual indicator of total items */}
+                <div className="mt-2 flex justify-center gap-1.5">
+                  {CUSTOMER_OFFERS.map((_, i) => (
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-400 ${offerIndex === i ? 'w-5 bg-[#8A6F5F]' : 'w-1.5 bg-[#E8E2DC]'}`} />
+                  ))}
                 </div>
               </section>
             )}
