@@ -1,16 +1,39 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { useCartStore } from '@/store';
 import { useToast } from '@/contexts/ToastContext';
 import { formatMoney } from '@/utils/moneyUtils';
-import { Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck, Ticket, CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/Input';
 
 export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => void }) => {
   const { items, removeProduct, addProduct } = useCartStore();
   const toast = useToast();
+  const [couponInput, setCouponInput] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [isApplying, setIsApplying] = useState(false);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const discountAmount = Math.round(subtotal * (discountPercent / 100));
+  const total = subtotal - discountAmount;
+
+  const handleApplyCoupon = () => {
+    if (!couponInput.trim()) return;
+    
+    setIsApplying(true);
+    // Simulate API delay
+    setTimeout(() => {
+      if (couponInput.toUpperCase() === 'FIRSTGLOW') {
+        setDiscountPercent(10);
+        toast.success("Coupon 'FIRSTGLOW' applied! 10% discount added.");
+      } else {
+        toast.error("Invalid coupon code. Please try again.");
+      }
+      setIsApplying(false);
+    }, 600);
+  };
 
   if (!items.length) {
     return (
@@ -35,7 +58,6 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
               key={item.productId}
               className="relative group rounded-xl border border-[#E8E2DC] bg-white p-3.5 transition-colors hover:border-[#D4C8BC] overflow-hidden"
             >
-              {/* Delete Button - Top Right */}
               <button
                 onClick={() => removeProduct(item.productId)}
                 className="absolute right-2 top-2 p-2 text-[#B5A99A] hover:text-red-500 transition-colors z-10"
@@ -45,17 +67,14 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
               </button>
 
               <div className="flex gap-4">
-                {/* Image Placeholder */}
                 <div className="h-16 w-16 shrink-0 rounded-lg bg-[#F5F0EB] flex items-center justify-center text-[#8A6F5F]/20">
                   <ShoppingBag size={24} />
                 </div>
 
-                {/* Details Container */}
                 <div className="flex-1 min-w-0 pr-6">
                   <h4 className="text-[14px] font-bold text-[#1A1A1A] leading-tight truncate">{item.name}</h4>
                   <p className="mt-1 text-[12px] text-[#B5A99A]">{formatMoney(item.unitPriceCents)} each</p>
                   
-                  {/* Controls & Total Row - Stacked on Mobile */}
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2 rounded-lg border border-[#E8E2DC] px-2 py-1 bg-[#FAF8F5]">
                       <button
@@ -128,7 +147,6 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
             )}
           </div>
 
-          {/* Totals */}
           <div className="rounded-2xl border border-[#E8E2DC] bg-white p-5 shadow-sm">
             <h3 className="text-[13px] font-black uppercase tracking-widest text-[#8A6F5F] border-b border-[#F5F0EA] pb-3 mb-4">Order Summary</h3>
             <div className="space-y-4">
