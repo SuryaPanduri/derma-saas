@@ -4,10 +4,22 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { useCartStore, VALID_COUPONS } from '@/store';
 import { useToast } from '@/contexts/ToastContext';
 import { formatMoney } from '@/utils/moneyUtils';
-import { Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck, Ticket, CheckCircle2 } from 'lucide-react';
+import { Bell, Heart, Minus, Plus, X, ShoppingBag, ArrowRight, ShieldCheck, Ticket, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 
-export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => void }) => {
+interface CartViewProps {
+  onProceedToCheckout: () => void;
+  onNavigate?: (tab: string) => void;
+  wishlistCount?: number;
+  notificationsCount?: number;
+}
+
+export const CartView = ({ 
+  onProceedToCheckout,
+  onNavigate,
+  wishlistCount = 0,
+  notificationsCount = 0
+}: CartViewProps) => {
   const { items, removeProduct, addProduct, appliedCoupon, setAppliedCoupon } = useCartStore();
   const toast = useToast();
   const [couponInput, setCouponInput] = useState(appliedCoupon || '');
@@ -52,9 +64,36 @@ export const CartView = ({ onProceedToCheckout }: { onProceedToCheckout: () => v
 
   return (
     <div className="animate-in fade-in duration-300 w-full max-w-full overflow-x-hidden">
-      <div className="mb-5">
-        <h2 className="font-['Playfair_Display'] text-2xl font-bold tracking-tight text-[#2C2420]">Your Cart</h2>
-        <p className="mt-0.5 text-[12px] text-[#B5A99A]">{itemCount} {itemCount === 1 ? 'item' : 'items'}</p>
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <h2 className="font-['Playfair_Display'] text-2xl font-bold tracking-tight text-[#2C2420]">Your Cart</h2>
+          <p className="mt-0.5 text-[12px] text-[#B5A99A]">{itemCount} {itemCount === 1 ? 'item' : 'items'}</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => onNavigate?.('Notifications')}
+            className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8E2DC] bg-white transition-all hover:border-[#8A6F5F]"
+          >
+            <Bell size={18} className="text-[#8A6F5F] transition-transform group-hover:scale-110" />
+            {notificationsCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#8A6F5F] text-[9px] font-bold text-white ring-2 ring-white">
+                {notificationsCount}
+              </span>
+            )}
+          </button>
+          <button 
+            onClick={() => onNavigate?.('Wishlists')}
+            className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8E2DC] bg-white transition-all hover:border-[#8A6F5F]"
+          >
+            <Heart size={18} className="text-[#8A6F5F] transition-transform group-hover:scale-110" />
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#8A6F5F] text-[9px] font-bold text-white ring-2 ring-white">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">

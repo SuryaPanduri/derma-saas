@@ -32,7 +32,14 @@ import {
   Package,
   TrendingUp,
   Wrench,
-  UserCircle2
+  UserCircle2,
+  LayoutGrid,
+  Settings,
+  CreditCard,
+  LogOut,
+  ChevronRight,
+  Menu,
+  X
 } from 'lucide-react';
 
 const emptyServiceForm = {
@@ -467,16 +474,22 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
   };
 
   const adminTabs = [
-    { label: 'Dashboard' as const, icon: Activity, hint: 'Overview' },
-    { label: 'Revenue' as const, icon: TrendingUp, hint: 'Earnings' },
+    { label: 'Dashboard' as const, icon: LayoutDashboard, hint: 'Activity' },
     { label: 'Appointments' as const, icon: CalendarClock, hint: 'Bookings' },
     { label: 'Orders' as const, icon: ClipboardList, hint: 'Purchases' },
-    { label: 'Enquiries' as const, icon: Mail, hint: 'Leads' },
     { label: 'Catalog' as const, icon: Wrench, hint: 'Manage' },
+    { label: 'Revenue' as const, icon: TrendingUp, hint: 'Earnings' },
+    { label: 'Enquiries' as const, icon: Mail, hint: 'Leads' },
     { label: 'Alerts' as const, icon: Bell, hint: 'Inventory' }
   ];
 
+  const secondaryActions = [
+    { label: 'Payments' as const, icon: CreditCard, onClick: () => setAdminTab('Revenue') },
+    { label: 'Settings' as const, icon: Settings, onClick: () => {} }
+  ];
+
   const displayName = user?.email ? user.email.split('@')[0] : 'Admin User';
+
   const Pagination = ({
     page,
     totalPages,
@@ -487,134 +500,209 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
     onPageChange: (page: number) => void;
   }) =>
     totalPages > 1 ? (
-      <div className="mt-3 flex items-center justify-end gap-2">
-        <Button variant="outline" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1}>
-          Prev
-        </Button>
-        <span className="text-sm text-[#5D4A3E]/70">
-          {page} / {totalPages}
-        </span>
-        <Button variant="outline" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+      <div className="mt-6 flex items-center justify-end gap-3">
+        <button
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="flex h-9 items-center gap-2 rounded-xl border border-[#D4C8BC]/40 bg-white px-4 text-xs font-bold text-[#8A6F5F] transition-all hover:bg-[#FAF8F4] disabled:opacity-30"
+        >
+          Previous
+        </button>
+        <div className="flex h-9 items-center rounded-xl bg-[#FAF8F4] px-4 text-[10px] font-bold uppercase tracking-widest text-[#8A6F5F]">
+          {page} <span className="mx-2 opacity-30">/</span> {totalPages}
+        </div>
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+          className="flex h-9 items-center gap-2 rounded-xl border border-[#D4C8BC]/40 bg-white px-4 text-xs font-bold text-[#8A6F5F] transition-all hover:bg-[#FAF8F4] disabled:opacity-30"
+        >
           Next
-        </Button>
+          <ChevronRight size={14} />
+        </button>
       </div>
     ) : null;
 
   return (
-    <div className="h-full w-full bg-[#ECE3D8]">
-      <div className="grid h-full items-start gap-4 lg:grid-cols-[68px_1fr]">
-        <div className="relative hidden self-start lg:sticky lg:top-4 lg:block">
-          <aside className="flex h-[calc(100vh-8rem)] flex-col justify-between rounded-3xl border border-[#D4C8BC] bg-white px-2 py-10">
-            <div className="flex flex-col items-center gap-3">
-              {adminTabs.map((tab) => (
+    <div className="min-h-screen w-full bg-[#FDFCFB] text-[#191919]">
+      {/* ... keeping previous aside and mobile nav ... */}
+      {/* (Skipping to Dashboard section for brevity in this tool call) */}
+      {/* --- DESKTOP SIDEBAR --- */}
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-[#D4C8BC]/30 bg-white/80 backdrop-blur-2xl lg:block">
+        <div className="flex h-full flex-col p-6">
+          <div className="mb-10 flex items-center gap-3 px-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#8A6F5F] text-white shadow-lg shadow-[#8A6F5F]/20">
+              <Activity size={22} />
+            </div>
+            <div>
+              <h2 className="font-['Playfair_Display'] text-lg font-bold leading-tight">THE SKIN THEORY</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A6F5F]/60">Clinical Suite</p>
+            </div>
+          </div>
+
+          <nav className="flex-1 space-y-2">
+            <p className="mb-4 px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A6F5F]/40">Main Navigation</p>
+            {adminTabs.map((tab) => (
+              <SidebarItem key={tab.label} tab={tab} isActive={adminTab === tab.label} onClick={() => setAdminTab(tab.label)} />
+            ))}
+          </nav>
+
+          <div className="mt-auto space-y-6 pt-6">
+            <div className="space-y-1">
+              {secondaryActions.map((action) => (
                 <button
-                  key={`rail-${tab.label}`}
-                  onClick={() => setAdminTab(tab.label)}
-                  className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${
-                    adminTab === tab.label ? 'bg-[#8A6F5F] text-white' : 'bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
-                  }`}
-                  aria-label={tab.label}
-                  title={tab.label}
+                  key={action.label}
+                  onClick={action.onClick}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[#8A6F5F]/60 transition-colors hover:bg-[#FAF8F4] hover:text-[#8A6F5F]"
                 >
-                  <tab.icon size={18} />
+                  <action.icon size={18} />
+                  {action.label}
                 </button>
               ))}
             </div>
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowProfileMenu((value) => !value)}
-                className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF8F4] text-[#8A6F5F] transition hover:bg-[#ECE3D8]"
-                aria-label="Open profile menu"
-                title="Profile"
-              >
-                <UserCircle2 size={18} />
+
+            <div className="rounded-2xl border border-[#D4C8BC]/40 bg-[#FAF8F4]/50 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D4C8BC]/30">
+                  <UserCircle2 size={24} className="text-[#8A6F5F]" />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <p className="truncate text-xs font-bold text-[#191919]">{displayName}</p>
+                  <p className="truncate text-[10px] text-[#8A6F5F]/60">{user?.email}</p>
+                </div>
+                <button
+                  onClick={onSignOut}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8A6F5F]/40 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                  title="Sign Out"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* --- MOBILE BOTTOM NAV --- */}
+      <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around border-t border-[#D4C8BC]/30 bg-white/90 px-2 py-3 backdrop-blur-xl lg:hidden">
+        {adminTabs.slice(0, 5).map((tab) => (
+          <button
+            key={`mobile-${tab.label}`}
+            onClick={() => setAdminTab(tab.label)}
+            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+              adminTab === tab.label ? 'text-[#8A6F5F]' : 'text-[#8A6F5F]/40'
+            }`}
+          >
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 ${
+              adminTab === tab.label ? 'bg-[#8A6F5F]/10 scale-110 shadow-sm shadow-[#8A6F5F]/5' : ''
+            }`}>
+              <tab.icon size={22} strokeWidth={adminTab === tab.label ? 2.5 : 2} />
+            </div>
+            <span className={`text-[10px] font-bold tracking-tight ${adminTab === tab.label ? 'opacity-100' : 'opacity-0'}`}>
+              {tab.label}
+            </span>
+          </button>
+        ))}
+        <button
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+          className={`flex flex-col items-center gap-1 transition-all duration-300 ${
+            showProfileMenu ? 'text-[#8A6F5F]' : 'text-[#8A6F5F]/40'
+          }`}
+        >
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 ${
+            showProfileMenu ? 'bg-[#8A6F5F]/10 scale-110 shadow-sm shadow-[#8A6F5F]/5' : ''
+          }`}>
+            <LayoutGrid size={22} strokeWidth={showProfileMenu ? 2.5 : 2} />
+          </div>
+          <span className={`text-[10px] font-bold tracking-tight ${showProfileMenu ? 'opacity-100' : 'opacity-0'}`}>
+            Menu
+          </span>
+        </button>
+      </nav>
+
+      {/* --- MAIN CONTENT --- */}
+      <main className="lg:pl-72">
+        {/* Mobile Header */}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#D4C8BC]/20 bg-white/80 p-4 backdrop-blur-md lg:hidden">
+          <div className="flex items-center gap-2">
+            <Activity size={20} className="text-[#8A6F5F]" />
+            <h1 className="font-['Playfair_Display'] text-lg font-bold">The Skin Theory</h1>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="rounded-full bg-[#FAF8F4] px-3 py-1 text-[10px] font-bold text-[#8A6F5F]">
+              {formatDateLabel(nowISO())}
+            </div>
+             <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ECE3D8] text-[#8A6F5F]"
+            >
+              <UserCircle2 size={20} />
+            </button>
+          </div>
+        </header>
+
+        <div className="p-4 pb-32 sm:p-6 md:p-8 lg:p-10">
+          <header className="mb-10 hidden items-end justify-between lg:flex">
+            <div>
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.3em] text-[#8A6F5F]">Clinic Management System</p>
+              <h2 className="text-4xl font-extrabold tracking-tight text-[#191919]">
+                {adminTab} <span className="text-[#8A6F5F]/30 italic font-['Playfair_Display']">Overview</span>
+              </h2>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A6F5F]/60">Current Session</p>
+                <p className="text-sm font-bold text-[#191919]">{formatDateLabel(nowISO())}</p>
+              </div>
+              <div className="h-10 w-px bg-[#D4C8BC]/30" />
+              <button className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-[#D4C8BC]/40 text-[#8A6F5F] hover:bg-[#FAF8F4] transition-colors">
+                <Bell size={20} />
+                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
               </button>
             </div>
-          </aside>
+          </header>
 
-          {showProfileMenu ? (
-            <Card className="absolute bottom-0 left-16 z-20 w-56 border-[#D4C8BC] bg-white p-3 shadow-lg">
-              <p className="text-xs uppercase tracking-wider text-[#8A6F5F]/60">Signed in as</p>
-              <p className="mt-1 text-sm font-semibold text-[#191919]">{displayName}</p>
-              <p className="text-xs text-[#8A6F5F]/60">{user?.email}</p>
-              <Button className="mt-3 w-full bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={onSignOut}>
-                Sign out
-              </Button>
-            </Card>
-          ) : null}
-        </div>
-
-        <div className="space-y-4">
-          <Card className="relative border-[#D4C8BC] bg-white p-4 sm:p-5 md:p-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#191919] sm:text-2xl">The Skin Theory</h2>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-[#8A6F5F]">Admin Portal</p>
-                  <h3 className="text-2xl font-bold text-[#191919] sm:text-3xl md:text-4xl text-balance">Welcome Back, Clinic Admin</h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowProfileMenu((value) => !value)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF8F4] text-[#8A6F5F] transition hover:bg-[#ECE3D8] lg:hidden"
-                    aria-label="Open admin profile menu"
-                  >
-                    <UserCircle2 size={18} />
-                  </button>
-                  <div className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2 text-xs font-semibold text-[#8A6F5F]">
-                    {formatDateLabel(nowISO())}
+          {/* Mobile Profile/More Menu Sidebar/Overlay */}
+          {showProfileMenu && (
+            <div className="fixed inset-0 z-[60] lg:hidden">
+              <div className="absolute inset-0 bg-[#191919]/40 backdrop-blur-sm" onClick={() => setShowProfileMenu(false)} />
+              <div className="absolute bottom-0 left-0 right-0 rounded-t-[2.5rem] bg-white p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-full duration-500">
+                <div className="mb-8 flex flex-col items-center text-center">
+                  <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#ECE3D8] text-[#8A6F5F]">
+                    <UserCircle2 size={48} />
                   </div>
+                  <h3 className="text-xl font-bold">{displayName}</h3>
+                  <p className="text-sm text-[#8A6F5F]/60">{user?.email}</p>
                 </div>
-              </div>
 
-              {showProfileMenu ? (
-                <Card className="z-20 w-full border-[#D4C8BC] bg-white p-3 shadow-md lg:hidden">
-                  <p className="text-xs uppercase tracking-wider text-[#8A6F5F]/60">Signed in as</p>
-                  <p className="mt-1 text-sm font-semibold text-[#191919]">{displayName}</p>
-                  <p className="text-xs text-[#8A6F5F]/60">{user?.email}</p>
-                  <Button className="mt-3 w-full bg-[#8A6F5F] text-white hover:bg-[#5D4A3E]" onClick={onSignOut}>
-                    Sign out
-                  </Button>
-                </Card>
-              ) : null}
-
-              <div className="flex gap-2 overflow-x-auto pb-1 md:hidden">
-                {adminTabs.map((tab) => (
+                <div className="grid grid-cols-2 gap-4">
+                  {adminTabs.slice(5).map((tab) => (
+                    <button
+                      key={`more-${tab.label}`}
+                      onClick={() => { setAdminTab(tab.label); setShowProfileMenu(false); }}
+                      className="flex flex-col items-start gap-2 rounded-2xl border border-[#D4C8BC]/20 bg-[#FAF8F4] p-4 text-[#8A6F5F]"
+                    >
+                      <tab.icon size={20} />
+                      <span className="text-xs font-bold">{tab.label}</span>
+                    </button>
+                  ))}
                   <button
-                    key={`mobile-${tab.label}`}
-                    onClick={() => setAdminTab(tab.label)}
-                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                      adminTab === tab.label
-                        ? 'border-[#8A6F5F] bg-[#8A6F5F] text-white'
-                        : 'border-[#D4C8BC] bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
-                    }`}
+                    onClick={() => {}}
+                    className="flex flex-col items-start gap-2 rounded-2xl border border-[#D4C8BC]/20 bg-[#FAF8F4] p-4 text-[#8A6F5F]"
                   >
-                    {tab.label}
+                    <Settings size={20} />
+                    <span className="text-xs font-bold">Settings</span>
                   </button>
-                ))}
-              </div>
-
-              <div className="hidden grid-cols-2 gap-2 md:grid md:grid-cols-4">
-                {adminTabs.map((tab) => (
                   <button
-                    key={tab.label}
-                    onClick={() => setAdminTab(tab.label)}
-                    className={`rounded-xl border px-3 py-2 text-left transition ${
-                      adminTab === tab.label
-                        ? 'border-[#8A6F5F] bg-[#8A6F5F] text-white'
-                        : 'border-[#D4C8BC] bg-[#FAF8F4] text-[#8A6F5F] hover:bg-[#ECE3D8]'
-                    }`}
+                    onClick={onSignOut}
+                    className="col-span-2 flex items-center justify-center gap-3 rounded-2xl bg-rose-50 p-4 font-bold text-rose-600"
                   >
-                    <div className="flex items-center gap-2">
-                      <tab.icon size={16} />
-                      <span className="text-sm font-semibold sm:text-base">{tab.label}</span>
-                    </div>
-                    <p className={`mt-0.5 text-sm ${adminTab === tab.label ? 'text-white/70' : 'text-[#8A6F5F]/60'}`}>{tab.hint}</p>
+                    <LogOut size={20} />
+                    Sign Out
                   </button>
-                ))}
+                </div>
               </div>
             </div>
-          </Card>
+          )}
 
           {adminTab === 'Dashboard' ? (
             <>
@@ -634,207 +722,204 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                   }}
                 />
               ) : (
-                <>
-                  <section className="grid gap-4 lg:grid-cols-12">
-                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-3">
-                      <div className="space-y-4">
-                        <div className="rounded-2xl bg-[#8A6F5F] p-4 text-white">
-                          <p className="text-sm uppercase tracking-wider text-[#ECE3D8]/80">Revenue</p>
-                          <h3 className="mt-2 text-4xl font-extrabold">{formatMoney(totalRevenueCents)}</h3>
-                          <p className="mt-2 text-sm text-[#ECE3D8]/80">Paid orders total</p>
-                        </div>
-                        <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
-                          <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Orders</p>
-                          <div className="mt-2 flex items-center justify-between">
-                            <h4 className="text-4xl font-bold text-[#191919]">{totalOrders}</h4>
-                            <Package size={20} className="text-[#8A6F5F]" />
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <section className="grid gap-6 lg:grid-cols-3">
+                <div className="group relative overflow-hidden rounded-[2.5rem] bg-[#8A6F5F] p-8 text-white shadow-2xl transition-all hover:scale-[1.02]">
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl transition-transform group-hover:scale-150" />
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#ECE3D8]/60">Total Revenue</p>
+                  <h3 className="mt-4 text-5xl font-extrabold tracking-tight">{formatMoney(totalRevenueCents)}</h3>
+                  <div className="mt-8 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md">
+                      <TrendingUp size={20} />
+                    </div>
+                    <p className="text-xs font-medium text-[#ECE3D8]/80">Projected for {formatDateLabel(nowISO()).split(',')[1]}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6 lg:col-span-2">
+                  <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8 transition-all hover:shadow-xl hover:shadow-[#8A6F5F]/5">
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FAF8F4] text-[#8A6F5F]">
+                      <Package size={24} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A6F5F]/60">Orders</p>
+                    <h4 className="mt-2 text-4xl font-extrabold text-[#191919]">{totalOrders}</h4>
+                    <div className="mt-4 h-1 w-12 rounded-full bg-[#8A6F5F]/10" />
+                  </div>
+                  <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8 transition-all hover:shadow-xl hover:shadow-[#8A6F5F]/5">
+                    <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FAF8F4] text-[#8A6F5F]">
+                      <CalendarClock size={24} />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8A6F5F]/60">Appointments</p>
+                    <h4 className="mt-2 text-4xl font-extrabold text-[#191919]">{totalAppointments}</h4>
+                    <div className="mt-4 h-1 w-12 rounded-full bg-[#8A6F5F]/10" />
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid gap-8 lg:grid-cols-12">
+                <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8 lg:col-span-8">
+                  <div className="mb-10 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xl font-bold">Booking Trends</h4>
+                      <p className="text-sm text-[#8A6F5F]/60">Last 14 days activity analysis</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center gap-2 rounded-full bg-[#FAF8F4] px-4 py-2">
+                        <div className="h-2 w-2 rounded-full bg-[#8A6F5F]" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A6F5F]">Volume</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative flex h-64 items-end justify-between gap-2 px-2">
+                    {!bookingTrend.length ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-[#FAF8F4]/50 rounded-3xl">
+                        <p className="text-sm font-medium text-[#8A6F5F]/40 italic">Waiting for more data points...</p>
+                      </div>
+                    ) : (
+                      bookingTrend.map((point) => {
+                        const barHeight = Math.max(12, Math.min(220, point.total * 30));
+                        const isHovered = hoveredTrendDate === point.dateISO;
+                        return (
+                          <div
+                            key={point.dateISO}
+                            className="group relative flex flex-1 flex-col items-center gap-4"
+                            onMouseEnter={() => setHoveredTrendDate(point.dateISO)}
+                            onMouseLeave={() => setHoveredTrendDate(null)}
+                          >
+                            <div className="relative flex w-full flex-col items-center justify-end h-48">
+                               {isHovered && (
+                                <div className="absolute -top-16 z-20 w-32 rounded-2xl border border-[#D4C8BC]/40 bg-white/95 p-3 text-center shadow-2xl backdrop-blur-md animate-in zoom-in-95 duration-200">
+                                  <p className="text-[10px] font-bold text-[#8A6F5F]">{formatDateLabel(point.dateISO)}</p>
+                                  <p className="mt-1 text-lg font-extrabold text-[#191919]">{point.total} Booked</p>
+                                </div>
+                              )}
+                              <div
+                                className={`w-full max-w-[1.5rem] rounded-t-xl transition-all duration-500 ease-out-expo ${
+                                  isHovered ? 'bg-[#8A6F5F] scale-x-110 shadow-lg shadow-[#8A6F5F]/20' : 'bg-[#D4C8BC]/40'
+                                }`}
+                                style={{ height: `${barHeight}px` }}
+                              />
+                            </div>
+                            <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${
+                              isHovered ? 'text-[#8A6F5F]' : 'text-[#8A6F5F]/30'
+                            }`}>
+                              {formatDateLabel(point.dateISO).split(',')[0].slice(0, 3)}
+                            </span>
                           </div>
-                        </div>
-                        <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
-                          <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Appointments</p>
-                          <div className="mt-2 flex items-center justify-between">
-                            <h4 className="text-4xl font-bold text-[#191919]">{totalAppointments}</h4>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8 lg:col-span-4">
+                  <div className="mb-8 flex items-center justify-between">
+                    <h4 className="text-xl font-bold">Operational Alerts</h4>
+                    <Bell size={20} className="text-rose-500 animate-pulse" />
+                  </div>
+
+                  <div className="space-y-4">
+                    {outOfStockProducts.length === 0 && lowStockProducts.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-center">
+                        <Activity className="mb-4 text-emerald-500 opacity-20" size={48} />
+                        <p className="text-sm font-bold text-[#8A6F5F]/60 uppercase tracking-widest">Inventory Healthy</p>
+                      </div>
+                    ) : (
+                      <>
+                        {outOfStockProducts.slice(0, 2).map((product) => (
+                          <div key={product.id} className="group flex items-center gap-4 rounded-3xl border border-rose-100 bg-rose-50/50 p-4 transition-colors hover:bg-rose-50">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-lg shadow-rose-500/20">
+                              <Package size={20} />
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                              <p className="truncate text-sm font-bold text-rose-900">{product.name}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-rose-600">OUT OF STOCK</p>
+                            </div>
+                            <ChevronRight size={16} className="text-rose-300 transition-transform group-hover:translate-x-1" />
+                          </div>
+                        ))}
+                        {lowStockProducts.slice(0, 2).map((product) => (
+                          <div key={product.id} className="group flex items-center gap-4 rounded-3xl border border-amber-100 bg-amber-50/50 p-4 transition-colors hover:bg-amber-50">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
+                              <Bell size={20} />
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                              <p className="truncate text-sm font-bold text-amber-900">{product.name}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600">Low Stock: {product.stock}</p>
+                            </div>
+                            <ChevronRight size={16} className="text-amber-300 transition-transform group-hover:translate-x-1" />
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => setAdminTab('Alerts')}
+                    className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#D4C8BC]/40 py-4 text-xs font-bold uppercase tracking-widest text-[#8A6F5F] transition-all hover:bg-[#FAF8F4]"
+                  >
+                    Manage Inventory
+                  </button>
+                </div>
+              </section>
+
+              <section className="grid gap-8 lg:grid-cols-2">
+                <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8">
+                  <div className="mb-8 flex items-center justify-between">
+                    <h4 className="text-xl font-bold">Upcoming Appointments</h4>
+                    <button onClick={() => setAdminTab('Appointments')} className="text-[10px] font-bold uppercase tracking-widest text-[#8A6F5F] hover:underline underline-offset-4">View Schedule</button>
+                  </div>
+                  <div className="space-y-4">
+                    {pagedUpcomingAppointments.map((appointment) => (
+                      <div key={appointment.id} className="flex items-center justify-between rounded-3xl border border-[#D4C8BC]/10 bg-[#FAF8F4]/50 p-5 transition-all hover:bg-white hover:shadow-lg hover:shadow-[#8A6F5F]/5">
+                        <div className="flex items-center gap-5">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
                             <CalendarClock size={20} className="text-[#8A6F5F]" />
                           </div>
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-6">
-                      <div className="flex items-center justify-between">
-                        <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
-                          <TrendingUp size={18} className="text-[#8A6F5F]" />
-                          Booking Trend
-                        </h3>
-                        <span className="rounded-full bg-[#FAF8F4] px-3 py-1 text-xs font-semibold text-[#8A6F5F]">Last 14 days</span>
-                      </div>
-                      {!bookingTrend.length ? (
-                        <div className="mt-4">
-                          <EmptyState title="No Trend Data" subtitle="Bookings are needed to render trend metrics." />
-                        </div>
-                      ) : (
-                        <div className="mt-4 space-y-4">
-                          <div className="overflow-x-auto">
-                            <div className="grid min-w-[520px] grid-cols-7 gap-3">
-                            {bookingTrend.slice(-7).map((point) => {
-                              const barHeight = Math.max(16, Math.min(120, point.total * 22));
-                              const isHovered = hoveredTrendDate === point.dateISO;
-                              return (
-                                <div key={point.dateISO} className="relative flex flex-col items-center gap-2">
-                                  {isHovered ? (
-                                    <div className="pointer-events-none absolute -top-20 z-10 w-40 rounded-lg border border-[#D4C8BC] bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
-                                      <p className="font-semibold text-[#191919]">{formatDateLabel(point.dateISO)}</p>
-                                      <p className="mt-1 text-emerald-700">{point.completed} completed</p>
-                                      <p className="text-rose-700">{point.cancelled} cancelled</p>
-                                    </div>
-                                  ) : null}
-                                  <div
-                                    className="flex h-32 w-full cursor-default items-end justify-center rounded-xl bg-[#FAF8F4]"
-                                    onMouseEnter={() => setHoveredTrendDate(point.dateISO)}
-                                    onMouseLeave={() => setHoveredTrendDate((current) => (current === point.dateISO ? null : current))}
-                                  >
-                                    <div className="w-6 rounded-t-full bg-[#8A6F5F]" style={{ height: `${barHeight}px` }} />
-                                  </div>
-                                  <span className="text-[11px] font-semibold text-[#8A6F5F]/60">{formatDateLabel(point.dateISO)}</span>
-                                </div>
-                              );
-                            })}
-                            </div>
-                          </div>
-
-                          <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-3">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-[#8A6F5F]">Quick Analytics (Last 14 Days)</p>
-                            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                              <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#8A6F5F]/60">Total Bookings</p>
-                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.total}</p>
-                              </div>
-                              <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#8A6F5F]/60">Completed / Cancelled</p>
-                                <p className="text-lg font-bold text-[#191919]">
-                                  {bookingTrendSummary.completed} / {bookingTrendSummary.cancelled}
-                                </p>
-                              </div>
-                              <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#8A6F5F]/60">Completion Rate</p>
-                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.completionRate}%</p>
-                              </div>
-                              <div className="rounded-xl bg-white px-3 py-2">
-                                <p className="text-xs text-[#8A6F5F]/60">Cancellation Rate</p>
-                                <p className="text-lg font-bold text-[#191919]">{bookingTrendSummary.cancellationRate}%</p>
-                              </div>
-                              <div className="rounded-xl bg-white px-3 py-2 sm:col-span-2 lg:col-span-2">
-                                <p className="text-xs text-[#8A6F5F]/60">Busiest Day</p>
-                                <p className="text-lg font-bold text-[#191919]">
-                                  {bookingTrendSummary.busiestDay
-                                    ? `${formatDateLabel(bookingTrendSummary.busiestDay.dateISO)} (${bookingTrendSummary.busiestDay.total})`
-                                    : 'N/A'}
-                                </p>
-                              </div>
-                            </div>
+                          <div>
+                            <p className="text-sm font-bold text-[#191919]">{appointment.serviceName}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A6F5F]/60">
+                              {formatDateLabel(appointment.dateISO)} <span className="mx-2">•</span> {appointment.timeSlot}
+                            </p>
                           </div>
                         </div>
-                      )}
-                    </Card>
-
-                    <Card className="border-[#D4C8BC] bg-white p-6 lg:col-span-3">
-                      <div className="rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
-                        <p className="text-sm uppercase tracking-wider text-[#8A6F5F]">Credit Amount</p>
-                        <div className="mt-2 flex items-center justify-between">
-                          <p className="text-5xl font-bold text-[#191919]">{formatMoney(totalRevenueCents)}</p>
+                        <div className={`rounded-xl border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${statusBadgeClass(appointment.status)}`}>
+                          {appointment.status}
                         </div>
                       </div>
-                      <div className="mt-3 rounded-2xl border border-[#D4C8BC] bg-[#FAF8F4] p-4">
-                        <h3 className="flex items-center gap-2 text-sm font-bold text-[#191919]">
-                          <Bell size={16} className="text-[#8A6F5F]" />
-                          Inventory Alerts
-                        </h3>
-                        {productsQuery.isLoading ? (
-                          <div className="mt-3 space-y-2">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                          </div>
-                        ) : productsQuery.error ? (
-                          <p className="mt-3 text-sm text-rose-700">Unable to load product notifications.</p>
-                        ) : !outOfStockProducts.length && !lowStockProducts.length ? (
-                          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                            No inventory alerts.
-                          </p>
-                        ) : (
-                          <div className="mt-3 space-y-2">
-                            {outOfStockProducts.slice(0, 2).map((product) => (
-                              <div key={product.id} className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs">
-                                <p className="font-semibold text-rose-700">{product.name}</p>
-                                <p className="text-rose-600">Stock {product.stock}</p>
-                              </div>
-                            ))}
-                            {lowStockProducts.slice(0, 2).map((product) => (
-                              <div key={product.id} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs">
-                                <p className="font-semibold text-amber-700">{product.name}</p>
-                                <p className="text-amber-700">
-                                  Remaining {product.stock} (threshold {LOW_STOCK_THRESHOLD})
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  </section>
-
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    <Card className="border-[#D4C8BC] bg-white p-5">
-                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
-                        <CalendarClock size={18} className="text-[#8A6F5F]" />
-                        Upcoming Appointments
-                      </h3>
-                      <p className="text-sm text-[#8A6F5F]/60">Next 30 days</p>
-                      {!upcomingAppointments.length ? (
-                        <div className="mt-4">
-                          <EmptyState title="No Upcoming Appointments" subtitle="New bookings will appear here." />
-                        </div>
-                      ) : (
-                        <div className="mt-4 grid gap-2">
-                          {pagedUpcomingAppointments.map((appointment) => (
-                            <div key={appointment.id} className="rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2.5 text-sm">
-                              <p className="font-semibold text-[#191919]">{appointment.serviceName}</p>
-                              <p className="text-[#4f666b]">
-                                {appointment.dateISO} at {appointment.timeSlot}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <Pagination page={upcomingPage} totalPages={upcomingTotalPages} onPageChange={setUpcomingPage} />
-                    </Card>
-
-                    <Card className="border-[#D4C8BC] bg-white p-5">
-                      <h3 className="flex items-center gap-2 text-lg font-bold text-[#191919]">
-                        <LayoutDashboard size={18} className="text-[#8A6F5F]" />
-                        Payment Overview
-                      </h3>
-                      <p className="text-sm text-[#8A6F5F]/60">Recent orders and performance</p>
-                      {!recentOrders.length ? (
-                        <div className="mt-4">
-                          <EmptyState title="No Orders Yet" subtitle="Payment metrics will appear here." />
-                        </div>
-                      ) : (
-                        <div className="mt-4 space-y-2">
-                          {pagedPaymentOverview.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between rounded-xl border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
-                              <div>
-                                <p className="text-sm font-semibold text-[#191919]">Order {order.id.slice(0, 8)}...</p>
-                                <p className="text-xs text-[#8A6F5F]/60">{formatDateLabel(order.createdAt)}</p>
-                              </div>
-                              <p className="text-sm font-semibold text-[#8A6F5F]">{formatMoney(order.totalCents)}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <Pagination page={paymentPage} totalPages={paymentTotalPages} onPageChange={setPaymentPage} />
-                    </Card>
+                    ))}
                   </div>
-                </>
+                </div>
+
+                <div className="rounded-[2.5rem] border border-[#D4C8BC]/30 bg-white p-8">
+                  <div className="mb-8 flex items-center justify-between">
+                    <h4 className="text-xl font-bold">Order Feed</h4>
+                    <button onClick={() => setAdminTab('Orders')} className="text-[10px] font-bold uppercase tracking-widest text-[#8A6F5F] hover:underline underline-offset-4">Browse All</button>
+                  </div>
+                  <div className="space-y-4">
+                    {pagedPaymentOverview.map((order) => (
+                      <div key={order.id} className="flex items-center justify-between rounded-3xl border border-[#D4C8BC]/10 bg-[#FAF8F4]/50 p-5 transition-all hover:bg-white hover:shadow-lg hover:shadow-[#8A6F5F]/5">
+                        <div className="flex items-center gap-5">
+                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
+                            <ClipboardList size={20} className="text-[#8A6F5F]" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-[#191919]">Order #{order.id.slice(-6).toUpperCase()}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A6F5F]/60">
+                              {formatMoney(order.totalCents)} <span className="mx-2">•</span> {formatDateLabel(order.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                         <div className={`rounded-xl border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${statusBadgeClass(order.status)}`}>
+                          {order.status}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </div>
               )}
             </>
           ) : null}
@@ -1113,10 +1198,10 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                 <h3 className="text-xl font-bold text-[#191919]">Service Catalog</h3>
                 <span className="rounded-full bg-[#FAF8F4] px-2 py-1 text-xs font-semibold text-[#8A6F5F]">{servicesQuery.data.length} active</span>
               </div>
-              <div className="space-y-2 text-sm text-[#8A6F5F]/70">
-                {servicesQuery.data.slice(0, 5).map((service) => (
-                  <div key={service.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
-                    <span>{service.name}</span>
+              <div className="max-h-[220px] overflow-y-auto pr-1 space-y-2 scrollbar-thin scrollbar-thumb-[#D4C8BC]">
+                {servicesQuery.data.map((service) => (
+                  <div key={service.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2 transition-colors hover:bg-white">
+                    <span className="text-sm font-medium text-[#191919]">{service.name}</span>
                     <span className="font-semibold text-[#8A6F5F]">{formatMoney(service.priceCents)}</span>
                   </div>
                 ))}
@@ -1167,11 +1252,16 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
                 <h3 className="text-xl font-bold text-[#191919]">Product Inventory</h3>
                 <span className="rounded-full bg-[#FAF8F4] px-2 py-1 text-xs font-semibold text-[#8A6F5F]">{productsQuery.data.length} active</span>
               </div>
-              <div className="space-y-2 text-sm text-[#8A6F5F]/70">
-                {topLowStock.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2">
-                    <span>{product.name}</span>
-                    <span className="font-semibold text-rose-700">Stock {product.stock}</span>
+              <div className="max-h-[220px] overflow-y-auto pr-1 space-y-2 scrollbar-thin scrollbar-thumb-[#D4C8BC]">
+                {productsQuery.data.sort((a,b) => a.stock - b.stock).map((product) => (
+                  <div key={product.id} className="flex items-center justify-between rounded-lg border border-[#D4C8BC] bg-[#FAF8F4] px-3 py-2 transition-colors hover:bg-white">
+                    <div>
+                      <p className="text-sm font-medium text-[#191919]">{product.name}</p>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-[#B5A99A]">{product.sku}</p>
+                    </div>
+                    <span className={`font-semibold text-sm ${product.stock <= 0 ? 'text-rose-600' : product.stock <= LOW_STOCK_THRESHOLD ? 'text-amber-600' : 'text-emerald-700'}`}>
+                      Stock {product.stock}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1316,7 +1406,29 @@ export const AdminDashboard = ({ clinicId, onSignOut }: { clinicId: string; onSi
         </>
           ) : null}
         </div>
-      </div>
+      </main>
     </div>
+  );
+};
+
+export default AdminDashboard;
+
+const SidebarItem = ({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 transition-all duration-300 ${
+        isActive ? 'bg-[#8A6F5F] text-white shadow-lg shadow-[#8A6F5F]/20' : 'text-[#8A6F5F]/70 hover:bg-[#FAF8F4] hover:text-[#8A6F5F]'
+      }`}
+    >
+      <tab.icon size={20} className={`shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+      <div className="flex flex-col items-start overflow-hidden">
+        <span className="text-sm font-bold tracking-tight">{tab.label}</span>
+        <span className={`text-[10px] uppercase tracking-widest opacity-60 ${isActive ? 'text-white' : 'text-[#8A6F5F]'}`}>{tab.hint}</span>
+      </div>
+      {isActive && (
+        <div className="absolute right-2 h-1.5 w-1.5 rounded-full bg-white/40 ring-4 ring-white/10" />
+      )}
+    </button>
   );
 };

@@ -365,7 +365,14 @@ export const CustomerMobileView: React.FC<CustomerMobileViewProps> = ({
             }} 
           />
         )}
-        {activeTab === 'Cart' && <CartView onProceedToCheckout={() => setActiveTab('Checkout')} />}
+        {activeTab === 'Cart' && (
+          <CartView 
+            onProceedToCheckout={() => setActiveTab('Checkout')} 
+            onNavigate={setActiveTab}
+            wishlistCount={wishlistCount}
+            notificationsCount={notificationsCount}
+          />
+        )}
         {activeTab === 'Checkout' && <OrdersView clinicId={clinicId} showHistory={false} showCheckout />}
         {activeTab === 'Profile' && (
           <ProfileView 

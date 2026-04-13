@@ -54,6 +54,14 @@ export const ServiceCatalogView = ({
 
   return (
     <div className="animate-in fade-in duration-300">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h2 className="font-['Playfair_Display'] text-4xl font-bold tracking-tight text-[#2C2420]">Clinical Treatments</h2>
+        <p className="mt-2 text-[14px] leading-relaxed text-[#B5A99A] max-w-xl">
+          Expert-led therapeutic protocols designed to address your specific skin concerns.
+        </p>
+      </div>
+
       {/* Category Filters */}
       <div className="mb-8 flex gap-2 overflow-x-auto pb-1">
         {categories.map((cat: string) => (

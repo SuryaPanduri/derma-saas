@@ -62,12 +62,17 @@ export class FirebaseOrderService implements OrderService {
 
     try {
       const result = await runTransaction(db, async (transaction) => {
+        // Phase 1: All Reads
+        const productSnapshots = await Promise.all(
+          normalizedInput.items.map((item) => transaction.get(doc(db, 'products', item.productId)))
+        );
+
         let subtotalCents = 0;
+        const updates: Array<{ ref: any; newStock: number }> = [];
 
-        for (const item of normalizedInput.items) {
-          const productRef = doc(db, 'products', item.productId);
-          const productDoc = await transaction.get(productRef);
-
+        // Phase 2: Validation
+        productSnapshots.forEach((productDoc, index) => {
+          const item = normalizedInput.items[index];
           if (!productDoc.exists()) {
             throw {
               code: 'PRODUCT_NOT_FOUND',
@@ -86,17 +91,24 @@ export class FirebaseOrderService implements OrderService {
           }
 
           const newStock = currentStock - item.quantity;
-          transaction.set(productRef, { stock: newStock, updatedAt: serverTimestamp() }, { merge: true });
+          updates.push({ ref: productDoc.ref, newStock });
+          subtotalCents += item.unitPriceCents * item.quantity;
+        });
 
-          if (newStock <= LOW_STOCK_THRESHOLD) {
-            await this.analyticsService.trackEvent('low_stock_warning', {
+        // Phase 3: All Writes
+        for (const update of updates) {
+          transaction.set(update.ref, { stock: update.newStock, updatedAt: serverTimestamp() }, { merge: true });
+          
+          // Stock tracking
+          if (update.newStock <= LOW_STOCK_THRESHOLD) {
+             const productId = update.ref.id;
+             // Fire-and-forget tracking
+             this.analyticsService.trackEvent('low_stock_warning', {
               clinicId: normalizedInput.clinicId,
-              productId: item.productId,
-              stock: newStock
+              productId,
+              stock: update.newStock
             });
           }
-
-          subtotalCents += item.unitPriceCents * item.quantity;
         }
 
         const coupon = getCouponDiscount(subtotalCents, normalizedInput.couponCode);

@@ -38,6 +38,7 @@ export const OrdersView = ({
   const { mutateAsync, isLoading } = useCreateOrder();
   const toast = useToast();
 
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
   const [activeTab, setActiveTab] = useState<'history' | 'checkout'>(items.length > 0 && showCheckout ? 'checkout' : 'history');
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -77,9 +78,15 @@ export const OrdersView = ({
     if (!user || !items.length) return;
     try {
       await mutateAsync({ clinicId, patientUid: user.id, items, couponCode: appliedCoupon ?? undefined });
-      clearCart();
-      toast.success('Order placed successfully');
-      setActiveTab('history');
+      setShowSuccessOverlay(true);
+      
+      // Wait for animation to finish then reset
+      setTimeout(() => {
+        setShowSuccessOverlay(false);
+        clearCart();
+        setActiveTab('history');
+      }, 2500);
+      
     } catch { toast.error('Order failed'); }
   };
 
@@ -235,6 +242,22 @@ export const OrdersView = ({
   // ─── Main View Tabs Layout ───
   return (
     <div className="animate-in fade-in duration-500">
+      {/* Success Animation Overlay */}
+      {showSuccessOverlay && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-xl animate-in fade-in duration-500">
+          <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-emerald-600 text-white shadow-2xl shadow-emerald-600/20 animate-checkmark-pop">
+            <CheckCircle2 size={64} strokeWidth={2.5} />
+            
+            {/* Ambient Pulse */}
+            <div className="absolute inset-0 rounded-full bg-emerald-600/20 animate-ping" />
+          </div>
+          <div className="mt-10 text-center animate-in slide-in-from-bottom-4 duration-700 delay-200">
+            <h2 className="font-['Playfair_Display'] text-4xl font-bold text-[#191919]">Ritual Confirmed</h2>
+            <p className="mt-2 text-[15px] font-medium text-[#8A6F5F]">Preparing your personalized transformation...</p>
+          </div>
+        </div>
+      )}
+
       <div className="relative mb-10 overflow-hidden rounded-2xl border border-white/20 bg-white/70 p-6 backdrop-blur-xl shadow-lg ring-1 ring-black/5">
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[#8A6F5F]/5 blur-3xl" />
         <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6">

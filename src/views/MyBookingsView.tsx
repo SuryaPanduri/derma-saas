@@ -11,6 +11,7 @@ export const MyBookingsView = () => {
   const user = useAuthStore((state) => state.user);
   const bookingsQuery = useBookings(user?.id ?? '');
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [rating, setRating] = useState(0);
 
   const bookings = useMemo(
     () => [...bookingsQuery.data].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -110,8 +111,16 @@ export const MyBookingsView = () => {
                   
                   <div className="flex gap-2 mb-8">
                     {[1,2,3,4,5].map(s => (
-                      <button key={s} className="h-12 w-12 rounded-xl border border-[#E8E2DC] flex items-center justify-center text-[#B5A99A] hover:border-[#CA8A04] hover:text-[#CA8A04] transition-all">
-                        <Star size={20} />
+                      <button 
+                        key={s} 
+                        onClick={() => setRating(s)}
+                        className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all ${
+                          s <= rating 
+                          ? 'border-[#CA8A04] bg-[#CA8A04]/5 text-[#CA8A04] animate-star-pop' 
+                          : 'border-[#E8E2DC] text-[#B5A99A] hover:border-[#CA8A04] hover:text-[#CA8A04]'
+                        }`}
+                      >
+                        <Star size={20} className={s <= rating ? 'fill-[#CA8A04]' : ''} />
                       </button>
                     ))}
                   </div>
